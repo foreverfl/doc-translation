@@ -1,0 +1,69 @@
+<!-- doc/src/sgml/release.sgml -->
+<!--
+
+전형적인 마크업:
+
+&<>                             & 이스케이프 사용
+PostgreSQL                      <productname>
+postgresql.conf, pg_hba.conf    <filename>
+\<[A-Z][A-Z_ ]+[A-Z_]\>         <command>, <literal>, <envar>, <acronym>
+\<[A-Za-z_][A-Za-z0-9_]+()      <function>
+\-\-?[A-Za-z_]+[-A-Za-z_]*      <option> (SGML 마크업을 피하기 위해 백슬래시 사용)
+\<[A-Za-z_]+/[A-Za-z_]+\>       <filename>
+psql                            <application>
+pg_[A-Za-z0-9_]+                <application>, <structname>
+\<[A-Z][A-Z][A-Z_ ]*\>          <type>
+\<[a-z]+_[a-z_]+\>              <varname>, <structfield>
+                                <systemitem class="osname">
+
+긴 줄 감싸기
+
+새로운 기능에 대해서는 문서 섹션에 대한 링크를 추가하십시오.
+
+-->
+
+<appendix id="release">
+ <title>릴리스 노트</title>
+
+  <para>
+   릴리스 노트에는 각 <productname>PostgreSQL</productname> 릴리스의 중요한 변경 사항이 포함되어 있으며, 주요 기능과 마이그레이션 문제는 상단에 나열됩니다. 릴리스 노트에는 소수의 사용자에게만 영향을 미치는 변경 사항이나 내부적이어서 사용자에게 보이지 않는 변경 사항은 포함되지 않습니다. 예를 들어, 최적화기는 거의 모든 릴리스에서 개선되지만, 이러한 개선 사항은 일반적으로 사용자에게 더 빠른 쿼리로 관찰됩니다.
+  </para>
+
+  <para>
+   각 릴리스에 대한 변경 사항의 전체 목록은 각 릴리스에 대한 <link linkend="git">Git</link> 로그를 통해 확인할 수 있습니다. <ulink
+   url="https://www.postgresql.org/list/pgsql-committers/"><literal>pgsql-committers</literal>
+   이메일 목록</ulink>은 모든 소스 코드 변경 사항을 기록합니다. 특정 파일에 대한 변경 사항을 보여주는 <ulink url="https://git.postgresql.org/gitweb/?p=postgresql.git;a=summary">웹 인터페이스</ulink>도 있습니다.
+  </para>
+
+  <para>
+   각 항목 옆에 나타나는 이름은 해당 항목의 주요 개발자를 나타냅니다. 물론 모든 변경 사항은 커뮤니티 논의와 패치 검토를 포함하므로 각 항목은 진정한 커뮤니티의 노력입니다.
+  </para>
+
+  <para id="release-commit-links">
+   릴리스 노트의 섹션 마커 (&sect;)는 <ulink
+   url="https://git.postgresql.org/gitweb/?p=postgresql.git"><application>gitweb</application></ulink>
+   페이지에 링크되어 있으며, 여기에는 릴리스 노트 항목에 대한 주요 <application>git</application> 커밋 메시지와 소스 트리 변경 사항이 표시됩니다. 표시되지 않는 추가 <application>git</application> 커밋이 있을 수 있습니다.
+  </para>
+
+<!--
+  새로운 주요 릴리스 시리즈를 시작할 때는 새로운 release-NN.sgml
+  파일을 생성하고 이전 파일을 제거한 후, 여기에서 &-참조를 변경하십시오.
+  filelist.sgml을 업데이트하는 것도 잊지 마십시오.
+
+  각 브랜치의 릴리스 노트를 다르게 이름 붙인 파일에 보관하는 이유는
+  마이너 릴리스 업데이트를 준비할 때 혼란을 줄이기 위함입니다.
+  모든 활성 브랜치는 이를 수행할 때 동시에 편집해야 합니다.
+-->
+
+&release-18;
+
+ <sect1 id="release-prior">
+  <title>이전 릴리스</title>
+
+  <para>
+   이전 릴리스 브랜치에 대한 릴리스 노트는
+   <ulink url="https://www.postgresql.org/docs/release/"><literal>https://www.postgresql.org/docs/release/</literal></ulink>에서 확인할 수 있습니다.
+  </para>
+ </sect1>
+
+</appendix>

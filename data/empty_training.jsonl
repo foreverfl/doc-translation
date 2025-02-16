@@ -1,0 +1,12 @@
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "Indexing"}, {"role": "assistant", "content": "색인"}]}
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "Primary Key"}, {"role": "assistant", "content": "기본 키"}]}
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "Replication"}, {"role": "assistant", "content": "복제"}]}
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "Normalization"}, {"role": "assistant", "content": "정규화"}]}
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "Foreign Key"}, {"role": "assistant", "content": "외래 키"}]}
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "Concurrency"}, {"role": "assistant", "content": "동시성"}]}
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "Deadlock"}, {"role": "assistant", "content": "교착 상태"}]}
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "Garbage Collection"}, {"role": "assistant", "content": "가비지 컬렉션"}]}
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "Load Balancing"}, {"role": "assistant", "content": "부하 분산"}]}
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "Cache Invalidation"}, {"role": "assistant", "content": "캐시 무효화"}]}
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "Sharding"}, {"role": "assistant", "content": "샤딩"}]}
+{"messages": [{"role": "system", "content": "Translate the following technical term."}, {"role": "user", "content": "CAP Theorem"}, {"role": "assistant", "content": "CAP 정리"}]}
