@@ -1,19 +1,4 @@
 services:
-  app:
-    build: .
-    container_name: translation_app
-    volumes:
-      - .:/usr/src/app
-    working_dir: /usr/src/app
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:password@db:5432/translation_db
-    depends_on:
-      - db
-    command: ["npm", "start"]
-    ports:
-      - "3000:3000"
-
   db:
     image: postgres:latest  
     container_name: translation_db
@@ -26,5 +11,23 @@ services:
       - "5432:5432"
     volumes:
       - ./data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d translation_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-
+  app:
+    build: .
+    container_name: translation_app
+    volumes:
+      - .:/usr/src/app
+    working_dir: /usr/src/app
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://user:password@db:5432/translation_db
+    depends_on:
+      db:
+        condition: service_healthy 
+    ports:
+      - "3000:3000"
