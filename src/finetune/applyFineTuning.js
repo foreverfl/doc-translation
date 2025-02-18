@@ -1,6 +1,7 @@
 import nlp from "compromise";
 import OpenAI from "openai";
 import dotenv from "dotenv";
+import stopwords from "stopwords-iso" assert { type: "json" };
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ async function translateWords(words) {
             messages: [{ role: "user", content: prompt }],
             temperature: 0.2,
         });
-        let translatedText = response.choices[0]?.message?.content || "";3
+        let translatedText = response.choices[0]?.message?.content || ""; 3
         translatedText = translatedText.replace(/^```json\n|\n```$/g, "").trim();
         console.log("📜 Raw Translated Text:", translatedText);
 
@@ -60,21 +61,23 @@ async function translateWords(words) {
     }
 }
 
-export async function extractFrequentNouns(content, minCount = 5) {
+export function extractFrequentNouns(content, minCount = 5) {
+    const STOPWORDS = new Set(stopwords.en); // 영어 불용어 목록
+
     const doc = nlp(content);
     let words = doc.nouns().out("array");
 
-    words = words.map(word => word.replace(/[^\w\s-]/g, "").trim()).filter(word => word);
-    console.log("🔎 Extracted Nouns:", words);
+    words = words
+        .map(word => word.replace(/[^\w\s-]/g, "").trim()) // 특수문자 제거
+        .filter(word => word && !STOPWORDS.has(word.toLowerCase())); // 빈 문자열 및 불용어 제거
 
     const wordCounts = words.reduce((acc, word) => {
         acc[word] = (acc[word] || 0) + 1;
         return acc;
     }, {});
-    console.log("📊 Word Counts:", wordCounts);
 
     const frequentNouns = Object.entries(wordCounts)
-        .filter(([_, count]) => count >= minCount)
+        .filter(([_, count]) => count >= minCount) // 최소 등장 횟수 조건
         .map(([word, count]) => ({ word, count }));
 
     if (frequentNouns.length === 0) {
@@ -82,16 +85,7 @@ export async function extractFrequentNouns(content, minCount = 5) {
         return {};
     }
 
-    const wordsToTranslate = frequentNouns.map(item => item.word);
-    const translations = await translateWords(wordsToTranslate);
+    console.log("🎯 Frequent Nouns:", frequentNouns);
 
-    const result = frequentNouns.reduce((acc, item) => {
-        acc[item.word] = {
-            count: item.count,
-            translated: translations[item.word] || "번역 없음",
-        };
-        return acc;
-    }, {});
-
-    console.log("🎯 Final Result:", result);
+    return frequentNouns;
 }

@@ -17,17 +17,17 @@ services:
       timeout: 5s
       retries: 5
 
-  app:
-    build: .
-    container_name: translation_app
-    volumes:
-      - .:/usr/src/app
-    working_dir: /usr/src/app
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://user:password@db:5432/translation_db
-    depends_on:
-      db:
-        condition: service_healthy 
-    ports:
-      - "3000:3000"
+  # app:
+  #   build: .
+  #   container_name: translation_app
+  #   volumes:
+  #     - .:/usr/src/app
+  #   working_dir: /usr/src/app
+  #   environment:
+  #     - NODE_ENV=development
+  #     - DATABASE_URL=postgresql://user:password@db:5432/translation_db
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy 
+  #   ports:
+  #     - "3000:3000"

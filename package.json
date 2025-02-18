@@ -19,6 +19,8 @@
     "compromise": "^14.14.4",
     "dotenv": "^16.4.7",
     "openai": "^4.85.1",
+    "pg": "^8.13.3",
+    "stopwords-iso": "^1.1.0",
     "tiktoken": "^1.0.20"
   }
 }

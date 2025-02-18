@@ -13,47 +13,54 @@ const openai = new OpenAI({
 
 async function translateFile(inputFilePath) {
     try {
+        // 1. 파일 읽기
         const content = readFile(inputFilePath);
         const startTime = Date.now();
         console.log(`🚀 Translation started: ${new Date(startTime).toISOString()}`);
         console.log(`📄 Translating file: ${inputFilePath}`);
 
+        // 2. 파일 내 자주 등장하는 명사 추출
         const extractNouns = extractFrequentNouns(content);
         console.log(`🔍 Extracting frequent nouns: ${extractNouns}`);
 
+        // 3. 자주 등장하는 명사를 한국어/일본어로 추출하고, DB에 삽입
+
+        // 4. DB 있는 미학습 단어 데이터가 10개 이상일 경우 파인 튜닝
+
+        // 5. 파일 내용을 번역
         const prompt = loadPromptByFileType(inputFilePath);
 
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-                {
-                    role: "developer",
-                    content: prompt,
-                },
-                {
-                    role: "user",
-                    content: content,
-                },
-            ],
-            temperature: 0.2,
-            max_tokens: 16000,
-        });
+        // const response = await openai.chat.completions.create({
+        //     model: "gpt-4o-mini",
+        //     messages: [
+        //         {
+        //             role: "developer",
+        //             content: prompt,
+        //         },
+        //         {
+        //             role: "user",
+        //             content: content,
+        //         },
+        //     ],
+        //     temperature: 0.2,
+        //     max_tokens: 16000,
+        // });
 
-        let translatedText = response.choices[0].message.content.trim();
+        // let translatedText = response.choices[0].message.content.trim();
 
-        const outputFilePath = path.join(
-            path.dirname(inputFilePath),
-            `${path.basename(inputFilePath, path.extname(inputFilePath))}_translated${path.extname(inputFilePath)}`
-        );
+        // const outputFilePath = path.join(
+        //     path.dirname(inputFilePath),
+        //     `${path.basename(inputFilePath, path.extname(inputFilePath))}_translated${path.extname(inputFilePath)}`
+        // );
 
-        saveFile(outputFilePath, translatedText);
+        // saveFile(outputFilePath, translatedText);
 
-        const endTime = Date.now();
-        const elapsedTime = ((endTime - startTime) / 1000).toFixed(2);
+        // const endTime = Date.now();
+        // const elapsedTime = ((endTime - startTime) / 1000).toFixed(2);
 
-        console.log(`✅ Translation completed: ${new Date(endTime).toISOString()}`);
-        console.log(`⏳ Elapsed time: ${elapsedTime} seconds`);
-        console.log(`📂 Output file: ${outputFilePath}`);
+        // console.log(`✅ Translation completed: ${new Date(endTime).toISOString()}`);
+        // console.log(`⏳ Elapsed time: ${elapsedTime} seconds`);
+        // console.log(`📂 Output file: ${outputFilePath}`);
     } catch (error) {
         console.error("❌ Error occurred:", error);
     }
