@@ -168,22 +168,31 @@ export async function translateFileWithDefaultModel(inputFilePath, tableName = "
             max_tokens: 16000,
         });
 
+        // 5. 번역된 텍스트 정리
         let translatedText = response.choices[0].message.content.trim();
-        translatedText = removeCodeBlocks(translatedText); 
 
-        // 6. 번역된 파일을 'translated/' 디렉토리에 저장
+        // 🚀 원본 번역 결과 저장
         const translatedDir = path.resolve("translated");
         fs.mkdirSync(translatedDir, { recursive: true });
 
-        const outputFilePath = path.join(
+        const outputFilePathOriginal = path.join(
             translatedDir,
             `translated_${path.basename(inputFilePath)}`
         );
+        saveFile(outputFilePathOriginal, translatedText);
 
-        saveFile(outputFilePath, translatedText);
+        // 🚀 코드블럭 제거 후 저장
+        let cleanedTranslatedText = removeCodeBlocks(translatedText);
+        const outputFilePathCleaned = path.join(
+            translatedDir,
+            `translated_cleaned_${path.basename(inputFilePath)}`
+        );
+        saveFile(outputFilePathCleaned, cleanedTranslatedText);
 
         console.log(`✅ Translation completed: ${new Date().toISOString()}`);
-        console.log(`📂 Output file: ${outputFilePath}`);
+        console.log(`📂 Output file (original): ${outputFilePathOriginal}`);
+        console.log(`📂 Output file (cleaned): ${outputFilePathCleaned}`);
+
     } catch (error) {
         console.error("❌ Error occurred:", error);
     }

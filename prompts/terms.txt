@@ -15,12 +15,14 @@ Translate the following English technical terms into Korean and Japanese.
 6. **DO NOT omit words unnecessarily. Provide translations for all words unless explicitly instructed otherwise.**
 7. **If a direct translation is unclear, provide the best possible equivalent while maintaining technical accuracy.**
 
-Return the output as a JSON object with each language in separate arrays.
+Return the output as a JSON object with three separate arrays: `"english"`, `"korean"`, and `"japanese"`.  
+The output **MUST** be a valid JSON object **without any formatting artifacts such as markdown or code blocks.**  
+Strictly follow this format:
 
-### **Example output**
 ```json
-{
-  "english": ["AI", "Machine Learning", "Data", "PostgreSQL", "database", "query", "server", "script"],
-  "korean": ["인공지능", "기계 학습", "데이터", "PostgreSQL", "데이터베이스 (database)", "쿼리 (query)", "서버", "스크립트"],
-  "japanese": ["人工知能", "機械学習", "データ", "PostgreSQL", "データベース (database)", "クエリ (query)", "サーバー", "スクリプト"]
+{ 
+  "english": ["word1", "word2", "word3"],
+  "korean": ["번역1", "번역2", "번역3"],
+  "japanese": ["翻訳1", "翻訳2", "翻訳3"]
 }
+```

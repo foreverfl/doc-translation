@@ -41,5 +41,5 @@ export function saveFile(outputFilePath, content) {
 }
 
 export function removeCodeBlocks(text) {
-    return text.replace(/```[\s\S]*?```/g, "").trim(); // 코드 블록 제거
+    return text.replace(/```(?:[\w]*)?(?:\n|\r\n|)([\s\S]*?)(?:\n|\r\n)?```/g, "$1").trim();
 }
