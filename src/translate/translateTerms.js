@@ -57,7 +57,7 @@ export async function translateWords(wordsObject) {
             };
         }
 
-        console.log("✅ Parsed Translations:", translations);
+        // console.log("✅ Parsed Translations:", translations);
         return translations;
     } catch (error) {
         console.error("❌ Error translating words:", error);

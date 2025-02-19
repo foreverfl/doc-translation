@@ -1,17 +1,13 @@
-const inputPath = process.argv[2];
+import { translateFolder } from "./translate/translate.js";
 
-if (!inputPath) {
-    console.error("❌ Please specify a file or folder to translate. Usage: node translate.js <file_or_folder_path>");
+const folderPath = process.argv[2]; 
+const withFineTuned = process.argv.includes("--finetuned"); 
+
+if (!folderPath) {
+    console.error("❌ Please provide a folder path. Usage: npm run translate-folder <folder_path> [--finetuned]");
     process.exit(1);
 }
 
-if (fs.existsSync(inputPath)) {
-    if (fs.lstatSync(inputPath).isDirectory()) {
-        translateFolder(inputPath);
-    } else {
-        translateFile(inputPath);
-    }
-} else {
-    console.error("❌ The specified file or folder does not exist.");
-    process.exit(1);
-}
+translateFolder(folderPath, withFineTuned)
+    .then(() => console.log("✅ Translation process finished!"))
+    .catch((error) => console.error("❌ Error:", error));

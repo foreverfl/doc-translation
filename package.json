@@ -12,7 +12,9 @@
     "fetch-models": "node src/finetune/fetchFineTunedModels.js",
     "predict": "node src/predictCost.js",
     "translate-file": "node src/translateFile.js",
-    "translate-folder": "node src/translateFolder.js",
+    "translate-file-default": "node src/translateFileWithDefaultModel.js",
+    "translate-folder": "node src/translateFolder.js --finetuned",
+    "translate-folder-default": "node src/translateFolder.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "mogumogu",

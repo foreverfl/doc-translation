@@ -1,59 +1,59 @@
-{"prompt": "Translate 'AI' into Korean and Japanese.", "completion": "Korean: 인공지능, Japanese: 人工知能"}
-{"prompt": "Translate 'Machine Learning' into Korean and Japanese.", "completion": "Korean: 기계 학습, Japanese: 機械学習"}
-{"prompt": "Translate 'Deep Learning' into Korean and Japanese.", "completion": "Korean: 딥러닝, Japanese: ディープラーニング"}
-{"prompt": "Translate 'Neural Network' into Korean and Japanese.", "completion": "Korean: 신경망, Japanese: ニューラルネットワーク"}
-{"prompt": "Translate 'Algorithm' into Korean and Japanese.", "completion": "Korean: 알고리즘, Japanese: アルゴリズム"}
-{"prompt": "Translate 'PostgreSQL' into Korean and Japanese.", "completion": "Korean: PostgreSQL, Japanese: PostgreSQL"}
-{"prompt": "Translate 'Database' into Korean and Japanese.", "completion": "Korean: 데이터베이스 (database), Japanese: データベース (database)"}
-{"prompt": "Translate 'Query' into Korean and Japanese.", "completion": "Korean: 쿼리 (query), Japanese: クエリ (query)"}
-{"prompt": "Translate 'Index' into Korean and Japanese.", "completion": "Korean: 인덱스, Japanese: インデックス"}
-{"prompt": "Translate 'Primary Key' into Korean and Japanese.", "completion": "Korean: 기본 키 (primary key), Japanese: 主キー (primary key)"}
-{"prompt": "Translate 'Foreign Key' into Korean and Japanese.", "completion": "Korean: 외래 키 (foreign key), Japanese: 外部キー (foreign key)"}
-{"prompt": "Translate 'React' into Korean and Japanese.", "completion": "Korean: React, Japanese: React"}
-{"prompt": "Translate 'Component' into Korean and Japanese.", "completion": "Korean: 컴포넌트, Japanese: コンポーネント"}
-{"prompt": "Translate 'State Management' into Korean and Japanese.", "completion": "Korean: 상태 관리, Japanese: 状態管理"}
-{"prompt": "Translate 'Props' into Korean and Japanese.", "completion": "Korean: 프롭스, Japanese: プロップス"}
-{"prompt": "Translate 'Hooks' into Korean and Japanese.", "completion": "Korean: 훅, Japanese: フック"}
-{"prompt": "Translate 'Virtual DOM' into Korean and Japanese.", "completion": "Korean: 가상 DOM, Japanese: 仮想DOM"}
-{"prompt": "Translate 'Docker' into Korean and Japanese.", "completion": "Korean: Docker, Japanese: Docker"}
-{"prompt": "Translate 'Container' into Korean and Japanese.", "completion": "Korean: 컨테이너, Japanese: コンテナ"}
-{"prompt": "Translate 'Image' into Korean and Japanese.", "completion": "Korean: 이미지, Japanese: イメージ"}
-{"prompt": "Translate 'Volume' into Korean and Japanese.", "completion": "Korean: 볼륨, Japanese: ボリューム"}
-{"prompt": "Translate 'Orchestration' into Korean and Japanese.", "completion": "Korean: 오케스트레이션, Japanese: オーケストレーション"}
-{"prompt": "Translate 'Kubernetes' into Korean and Japanese.", "completion": "Korean: 쿠버네티스, Japanese: クバネティス"}
-{"prompt": "Translate 'Docusaurus' into Korean and Japanese.", "completion": "Korean: Docusaurus, Japanese: Docusaurus"}
-{"prompt": "Translate 'Documentation' into Korean and Japanese.", "completion": "Korean: 문서화, Japanese: ドキュメンテーション"}
-{"prompt": "Translate 'Static Site Generator' into Korean and Japanese.", "completion": "Korean: 정적 사이트 생성기, Japanese: 静的サイトジェネレーター"}
-{"prompt": "Translate 'Markdown' into Korean and Japanese.", "completion": "Korean: 마크다운, Japanese: マークダウン"}
-{"prompt": "Translate 'MDX' into Korean and Japanese.", "completion": "Korean: MDX, Japanese: MDX"}
-{"prompt": "Translate 'Open Source' into Korean and Japanese.", "completion": "Korean: 오픈 소스, Japanese: オープンソース"}
-{"prompt": "Translate 'Repository' into Korean and Japanese.", "completion": "Korean: 저장소, Japanese: リポジトリ"}
-{"prompt": "Translate 'Pull Request' into Korean and Japanese.", "completion": "Korean: 풀 리퀘스트, Japanese: プルリクエスト"}
-{"prompt": "Translate 'Issue' into Korean and Japanese.", "completion": "Korean: 이슈, Japanese: イシュー"}
-{"prompt": "Translate 'Fork' into Korean and Japanese.", "completion": "Korean: 포크, Japanese: フォーク"}
-{"prompt": "Translate 'Branch' into Korean and Japanese.", "completion": "Korean: 브랜치, Japanese: ブランチ"}
-{"prompt": "Translate 'Server' into Korean and Japanese.", "completion": "Korean: 서버, Japanese: サーバー"}
-{"prompt": "Translate 'Client' into Korean and Japanese.", "completion": "Korean: 클라이언트, Japanese: クライアント"}
-{"prompt": "Translate 'Frontend' into Korean and Japanese.", "completion": "Korean: 프론트엔드, Japanese: フロントエンド"}
-{"prompt": "Translate 'Backend' into Korean and Japanese.", "completion": "Korean: 백엔드, Japanese: バックエンド"}
-{"prompt": "Translate 'API' into Korean and Japanese.", "completion": "Korean: API, Japanese: API"}
-{"prompt": "Translate 'REST' into Korean and Japanese.", "completion": "Korean: REST, Japanese: REST"}
-{"prompt": "Translate 'GraphQL' into Korean and Japanese.", "completion": "Korean: GraphQL, Japanese: GraphQL"}
-{"prompt": "Translate 'Authentication' into Korean and Japanese.", "completion": "Korean: 인증, Japanese: 認証"}
-{"prompt": "Translate 'Authorization' into Korean and Japanese.", "completion": "Korean: 인가, Japanese: 認可"}
-{"prompt": "Translate 'OAuth' into Korean and Japanese.", "completion": "Korean: OAuth, Japanese: OAuth"}
-{"prompt": "Translate 'JWT' into Korean and Japanese.", "completion": "Korean: JWT, Japanese: JWT"}
-{"prompt": "Translate 'Session' into Korean and Japanese.", "completion": "Korean: 세션, Japanese: セッション"}
-{"prompt": "Translate 'Cookie' into Korean and Japanese.", "completion": "Korean: 쿠키, Japanese: クッキー"}
-{"prompt": "Translate 'CI/CD' into Korean and Japanese.", "completion": "Korean: CI/CD, Japanese: CI/CD"}
-{"prompt": "Translate 'Deployment' into Korean and Japanese.", "completion": "Korean: 배포, Japanese: デプロイメント"}
-{"prompt": "Translate 'Pipeline' into Korean and Japanese.", "completion": "Korean: 파이프라인, Japanese: パイプライン"}
-{"prompt": "Translate 'Build' into Korean and Japanese.", "completion": "Korean: 빌드, Japanese: ビルド"}
-{"prompt": "Translate 'Test' into Korean and Japanese.", "completion": "Korean: 테스트, Japanese: テスト"}
-{"prompt": "Translate 'Automation' into Korean and Japanese.", "completion": "Korean: 자동화, Japanese: 自動化"}
-{"prompt": "Translate 'Cloud' into Korean and Japanese.", "completion": "Korean: 클라우드, Japanese: クラウド"}
-{"prompt": "Translate 'Infrastructure' into Korean and Japanese.", "completion": "Korean: 인프라스트럭처, Japanese: インフラストラクチャ"}
-{"prompt": "Translate 'IaaS' into Korean and Japanese.", "completion": "Korean: IaaS, Japanese: IaaS"}
-{"prompt": "Translate 'PaaS' into Korean and Japanese.", "completion": "Korean: PaaS, Japanese: PaaS"}
-{"prompt": "Translate 'Serverless' into Korean and Japanese.", "completion": "Korean: 서버리스, Japanese: サーバーレス"}
-{"prompt": "Translate 'DevOps' into Korean and Japanese.", "completion": "Korean: DevOps, Japanese: DevOps"}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'AI' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 인공지능, Japanese: 人工知能"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Machine Learning' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 기계 학습, Japanese: 機械学習"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Deep Learning' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 딥러닝, Japanese: ディープラーニング"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Neural Network' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 신경망, Japanese: ニューラルネットワーク"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Algorithm' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 알고리즘, Japanese: アルゴリズム"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'PostgreSQL' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: PostgreSQL, Japanese: PostgreSQL"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Database' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 데이터베이스 (database), Japanese: データベース (database)"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Query' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 쿼리 (query), Japanese: クエリ (query)"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Index' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 인덱스, Japanese: インデックス"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Primary Key' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 기본 키 (primary key), Japanese: 主キー (primary key)"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Foreign Key' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 외래 키 (foreign key), Japanese: 外部キー (foreign key)"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'React' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: React, Japanese: React"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Component' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 컴포넌트, Japanese: コンポーネント"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'State Management' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 상태 관리, Japanese: 状態管理"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Props' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 프롭스, Japanese: プロップス"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Hooks' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 훅, Japanese: フック"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Virtual DOM' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 가상 DOM, Japanese: 仮想DOM"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Docker' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: Docker, Japanese: Docker"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Container' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 컨테이너, Japanese: コンテナ"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Image' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 이미지, Japanese: イメージ"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Volume' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 볼륨, Japanese: ボリューム"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Orchestration' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 오케스트레이션, Japanese: オーケストレーション"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Kubernetes' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 쿠버네티스, Japanese: クバネティス"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Docusaurus' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: Docusaurus, Japanese: Docusaurus"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Documentation' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 문서화, Japanese: ドキュメンテーション"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Static Site Generator' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 정적 사이트 생성기, Japanese: 静的サイトジェネレーター"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Markdown' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 마크다운, Japanese: マークダウン"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'MDX' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: MDX, Japanese: MDX"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Open Source' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 오픈 소스, Japanese: オープンソース"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Repository' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 저장소, Japanese: リポジトリ"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Pull Request' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 풀 리퀘스트, Japanese: プルリクエスト"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Issue' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 이슈, Japanese: イシュー"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Fork' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 포크, Japanese: フォーク"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Branch' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 브랜치, Japanese: ブランチ"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Server' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 서버, Japanese: サーバー"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Client' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 클라이언트, Japanese: クライアント"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Frontend' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 프론트엔드, Japanese: フロントエンド"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Backend' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 백엔드, Japanese: バックエンド"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'API' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: API, Japanese: API"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'REST' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: REST, Japanese: REST"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'GraphQL' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: GraphQL, Japanese: GraphQL"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Authentication' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 인증, Japanese: 認証"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Authorization' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 인가, Japanese: 認可"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'OAuth' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: OAuth, Japanese: OAuth"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'JWT' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: JWT, Japanese: JWT"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Session' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 세션, Japanese: セッション"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Cookie' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 쿠키, Japanese: クッキー"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'CI/CD' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: CI/CD, Japanese: CI/CD"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Deployment' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 배포, Japanese: デプロイメント"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Pipeline' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 파이프라인, Japanese: パイプライン"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Build' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 빌드, Japanese: ビルド"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Test' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 테스트, Japanese: テスト"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Automation' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 자동화, Japanese: 自動化"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Cloud' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 클라우드, Japanese: クラウド"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Infrastructure' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 인프라스트럭처, Japanese: インフラストラクチャ"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'IaaS' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: IaaS, Japanese: IaaS"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'PaaS' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: PaaS, Japanese: PaaS"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'Serverless' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: 서버리스, Japanese: サーバーレス"}]}
+{"messages": [{"role": "system", "content": "You are a professional translator."}, {"role": "user", "content": "Translate 'DevOps' into Korean and Japanese."}, {"role": "assistant", "content": "Korean: DevOps, Japanese: DevOps"}]}

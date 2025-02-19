@@ -9,7 +9,7 @@ import { getUntrainedWordsForFineTuning } from "../db/fetchWords.js";
 import { inputWordsWithTraining, inputWordsWithoutTraining } from "../db/inputWords.js";
 import { applyFineTuning } from "../finetune/applyFineTuning.js";
 import { extractFrequentNouns, filterContent, translateWords } from "../translate/translateTerms.js";
-import { loadPromptByFileType, readFile } from "../utils/utils.js";
+import { loadPromptByFileType, readFile, saveFile } from "../utils/utils.js";
 
 dotenv.config();
 
@@ -94,12 +94,12 @@ export async function translateFile(inputFilePath, tableName = "translation_term
             } catch (error) {
                 console.error("🚨 Fine-tuning error:", error);
             }
-        } 
+        }
 
         // 9. Translate the file content
         const prompt = loadPromptByFileType(inputFilePath);
         const response = await openai.chat.completions.create({
-            model: process.env.MODEL_ID, 
+            model: process.env.MODEL_ID,
             messages: [
                 { role: "system", content: "You are a professional technical translator." },
                 { role: "user", content: prompt },
@@ -111,7 +111,7 @@ export async function translateFile(inputFilePath, tableName = "translation_term
 
         let translatedText = response.choices[0].message.content.trim();
 
-        // 9. Save translated file in 'translated/' directory
+        // 10. Save translated file in 'translated/' directory
         const translatedDir = path.resolve("translated");
         fs.mkdir(translatedDir, { recursive: true });
 
@@ -120,7 +120,7 @@ export async function translateFile(inputFilePath, tableName = "translation_term
             `translated_${path.basename(inputFilePath)}`
         );
 
-        await saveFile(outputFilePath, translatedText);
+        saveFile(outputFilePath, translatedText);
 
         const endTime = Date.now();
         const elapsedTime = ((endTime - startTime) / 1000).toFixed(2);
@@ -133,9 +133,79 @@ export async function translateFile(inputFilePath, tableName = "translation_term
     }
 }
 
-export async function translateFolder(folderPath, allowedExtensions = [".sgml", ".md", ".markdown", ".adoc", ".asciidoc", ".mdx"]) {
+export async function translateFileWithDefaultModel(inputFilePath, tableName = "translation_terms") {
+    try {
+        // 1. Read the file
+        let content = readFile(inputFilePath);
+        console.log(`🚀 Translation started: ${new Date().toISOString()}`);
+        console.log(`📄 Translating file: ${inputFilePath}`);
 
-    console.log(`🚀 Translating folder: ${folderPath}`);
+        // 2. Exclude code blocks and html tags
+        content = filterContent(content);
+
+        // 3. Extract frequently occurring nouns from the file
+        let extractedNouns = extractFrequentNouns(content);
+
+        // 4. Translate words
+        let translations;
+        try {
+            if (extractedNouns.length === 0) {
+                console.error("❌ No words available for translation.");
+                await closeDB();
+                return;
+            }
+            translations = await translateWords({ english: extractedNouns });
+        } catch (error) {
+            console.error("🚨 Error during translation:", error);
+            await closeDB();
+            return;
+        }
+
+        if (!translations || !translations.english || !translations.korean || !translations.japanese) {
+            console.error("❌ Translation failed: Invalid response format.");
+            await closeDB();
+            return;
+        }
+
+        console.log("✅ Translation successful:", translations);
+
+        await inputWordsWithoutTraining(translations, tableName);
+
+        // 5. GPT-4o-mini로 파일 번역
+        const prompt = loadPromptByFileType(inputFilePath);
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini", // ✅ 파인튜닝 모델 대신 기본 모델 사용
+            messages: [
+                { role: "system", content: "You are a professional technical translator." },
+                { role: "user", content: prompt },
+                { role: "user", content: content }
+            ],
+            temperature: 0.2,
+            max_tokens: 16000,
+        });
+
+        let translatedText = response.choices[0].message.content.trim();
+
+        // 6. 번역된 파일을 'translated/' 디렉토리에 저장
+        const translatedDir = path.resolve("translated");
+        fs.mkdirSync(translatedDir, { recursive: true });
+
+        const outputFilePath = path.join(
+            translatedDir,
+            `translated_${path.basename(inputFilePath)}`
+        );
+
+        saveFile(outputFilePath, translatedText);
+
+        console.log(`✅ Translation completed: ${new Date().toISOString()}`);
+        console.log(`📂 Output file: ${outputFilePath}`);
+    } catch (error) {
+        console.error("❌ Error occurred:", error);
+    }
+}
+
+export async function translateFolder(folderPath, withFineTuned = false, allowedExtensions = [".sgml", ".md", ".markdown", ".adoc", ".asciidoc", ".mdx"]) {
+    console.log(`🚀 Translating folder: ${folderPath} (Using Fine-Tuned Model: ${withFineTuned ? "YES" : "NO"})`);
 
     async function processDirectory(directory) {
         const files = fs.readdirSync(directory);
@@ -146,16 +216,24 @@ export async function translateFolder(folderPath, allowedExtensions = [".sgml", 
 
             if (stat.isDirectory()) {
                 console.log(`📂 Entering folder: ${filePath}`);
-                await processDirectory(filePath); // 🔄 재귀 호출
+                await processDirectory(filePath);
             } else {
                 const fileExt = path.extname(file).toLowerCase();
                 if (allowedExtensions.includes(fileExt)) {
-                    await translateFile(filePath);
+                    console.log(`📄 Translating file: ${filePath}`);
+                    if (withFineTuned) {
+                        await translateFile(filePath);
+                    } else {
+                        await translateFileWithDefaultModel(filePath);
+                    }
+                } else {
+                    console.log(`⚠️ Skipping unsupported file: ${filePath}`);
                 }
             }
         }
     }
 
+    const startTime = Date.now();
     await processDirectory(folderPath);
     const endTime = Date.now();
     const elapsedTime = ((endTime - startTime) / 1000).toFixed(2);
@@ -163,4 +241,3 @@ export async function translateFolder(folderPath, allowedExtensions = [".sgml", 
     console.log(`✅ Folder translation completed: ${new Date(endTime).toISOString()}`);
     console.log(`⏳ Total elapsed time: ${elapsedTime} seconds`);
 }
-
