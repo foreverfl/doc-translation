@@ -34,20 +34,12 @@ export async function translateFile(inputFilePath, tableName = "translation_term
 
         // 5. Check if words exist in DB and make a list of words to translate
         extractedNouns = await checkExistingWords(extractedNouns);
-        if (extractedNouns.length === 0) {
-            console.log("✅ All words already exist in DB. No need to translate.");
-            return;
-        }
 
         console.log(`🚀 Filtered nouns (new words): ${extractedNouns}`);
 
         // 6. Translate words
         let translations;
         try {
-            if (extractedNouns.length === 0) {
-                console.error("❌ No words available for translation.");
-                return;
-            }
             translations = await translateWords({ english: extractedNouns });
         } catch (error) {
             console.error("🚨 Error during translation:", error);
@@ -59,7 +51,7 @@ export async function translateFile(inputFilePath, tableName = "translation_term
             return;
         }
 
-        // console.log("✅ Translation successful:", translations);
+        console.log("✅ Translation successful:", translations.korean);
 
         if (translations.english.length < 20) {
             console.log(`🔹 Less than 20 translated words (${translations.english.length}). Storing without fine-tuning.`);
@@ -107,7 +99,7 @@ export async function translateFile(inputFilePath, tableName = "translation_term
 
         let translatedText = response.choices[0].message.content.trim();
         translatedText = removeCodeBlocks(translatedText);
-        
+
         // 10. Save translated file in 'translated/' directory
         const translatedDir = path.resolve("translated");
         fs.mkdir(translatedDir, { recursive: true });
@@ -143,13 +135,12 @@ export async function translateFileWithDefaultModel(inputFilePath, tableName = "
         // 3. Extract frequently occurring nouns from the file
         let extractedNouns = extractFrequentNouns(content);
 
-        // 4. Translate words
+        // 4. Check if words exist in DB, including untrained words
+        extractedNouns = await checkExistingWords(extractedNouns, { includeUntrained: true });
+
+        // 5. Translate words
         let translations;
         try {
-            if (extractedNouns.length === 0) {
-                console.error("❌ No words available for translation.");
-                return;
-            }
             translations = await translateWords({ english: extractedNouns });
         } catch (error) {
             console.error("🚨 Error during translation:", error);
@@ -161,14 +152,13 @@ export async function translateFileWithDefaultModel(inputFilePath, tableName = "
             return;
         }
 
-        // console.log("✅ Translation successful:", translations);
-
+        console.log("✅ Translation successful:", translations.korean);
         await inputWordsWithoutTraining(translations, tableName);
 
         // 5. GPT-4o-mini로 파일 번역
         const prompt = loadPromptByFileType(inputFilePath);
         const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini", // ✅ 파인튜닝 모델 대신 기본 모델 사용
+            model: "gpt-4o-mini",
             messages: [
                 { role: "system", content: "You are a professional technical translator." },
                 { role: "user", content: prompt },

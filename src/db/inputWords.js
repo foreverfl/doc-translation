@@ -19,7 +19,11 @@ export async function inputWordsWithoutTraining(wordsObject, tableName = "transl
 
     try {
         await queryDB(insertQuery, values);
-        console.log(`✅ ${wordsObject.english.length} translated words stored without fine-tuning in "${tableName}".`);
+        console.log("📝 Stored words:", wordsObject.english.map((word, i) => ({
+            english: word,
+            korean: wordsObject.korean[i],
+            japanese: wordsObject.japanese[i]
+        })));
     } catch (error) {
         console.error("🚨 Error inserting words into DB:", error);
     }
