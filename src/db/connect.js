@@ -12,7 +12,14 @@ const pool = new Pool({
     connectionTimeoutMillis: 2000,
 });
 
+let isPoolClosed = false; 
+
 export async function connectDB() {
+    if (isPoolClosed) {
+        console.warn("⚠️ Connection pool is closed. Reinitializing...");
+        return;
+    }
+
     try {
         const client = await pool.connect();
         console.log("✅ Connected to PostgreSQL");
@@ -23,6 +30,10 @@ export async function connectDB() {
 }
 
 export async function queryDB(query, params = []) {
+    if (isPoolClosed) {
+        throw new Error("❌ Cannot execute query: Connection pool is closed.");
+    }
+
     try {
         const result = await pool.query(query, params);
         return result.rows;
@@ -33,8 +44,14 @@ export async function queryDB(query, params = []) {
 }
 
 export async function closeDB() {
-    await pool.end();
-    console.log("🔌 PostgreSQL connection pool closed.");
+    if (!isPoolClosed) {
+        await pool.end();
+        isPoolClosed = true;
+        console.log("🔌 PostgreSQL connection pool closed.");
+    } else {
+        console.log("⚠️ Connection pool already closed.");
+    }
 }
+
 
 export default pool;

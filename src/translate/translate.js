@@ -3,13 +3,12 @@ import fs from "fs";
 import OpenAI from "openai";
 import path from "path";
 import { checkExistingWords } from "../db/checkExistingWords.js";
-import { closeDB } from "../db/connect.js";
 import { createTable } from "../db/createTable.js";
 import { getUntrainedWordsForFineTuning } from "../db/fetchWords.js";
 import { inputWordsWithTraining, inputWordsWithoutTraining } from "../db/inputWords.js";
 import { applyFineTuning } from "../finetune/applyFineTuning.js";
 import { extractFrequentNouns, filterContent, translateWords } from "../translate/translateTerms.js";
-import { loadPromptByFileType, readFile, saveFile } from "../utils/utils.js";
+import { loadPromptByFileType, readFile, saveFile, removeCodeBlocks } from "../utils/utils.js";
 
 dotenv.config();
 
@@ -47,23 +46,20 @@ export async function translateFile(inputFilePath, tableName = "translation_term
         try {
             if (extractedNouns.length === 0) {
                 console.error("❌ No words available for translation.");
-                await closeDB();
                 return;
             }
             translations = await translateWords({ english: extractedNouns });
         } catch (error) {
             console.error("🚨 Error during translation:", error);
-            await closeDB();
             return;
         }
 
         if (!translations || !translations.english || !translations.korean || !translations.japanese) {
             console.error("❌ Translation failed: Invalid response format.");
-            await closeDB();
             return;
         }
 
-        console.log("✅ Translation successful:", translations);
+        // console.log("✅ Translation successful:", translations);
 
         if (translations.english.length < 20) {
             console.log(`🔹 Less than 20 translated words (${translations.english.length}). Storing without fine-tuning.`);
@@ -110,7 +106,8 @@ export async function translateFile(inputFilePath, tableName = "translation_term
         });
 
         let translatedText = response.choices[0].message.content.trim();
-
+        translatedText = removeCodeBlocks(translatedText);
+        
         // 10. Save translated file in 'translated/' directory
         const translatedDir = path.resolve("translated");
         fs.mkdir(translatedDir, { recursive: true });
@@ -151,23 +148,20 @@ export async function translateFileWithDefaultModel(inputFilePath, tableName = "
         try {
             if (extractedNouns.length === 0) {
                 console.error("❌ No words available for translation.");
-                await closeDB();
                 return;
             }
             translations = await translateWords({ english: extractedNouns });
         } catch (error) {
             console.error("🚨 Error during translation:", error);
-            await closeDB();
             return;
         }
 
         if (!translations || !translations.english || !translations.korean || !translations.japanese) {
             console.error("❌ Translation failed: Invalid response format.");
-            await closeDB();
             return;
         }
 
-        console.log("✅ Translation successful:", translations);
+        // console.log("✅ Translation successful:", translations);
 
         await inputWordsWithoutTraining(translations, tableName);
 
@@ -185,6 +179,7 @@ export async function translateFileWithDefaultModel(inputFilePath, tableName = "
         });
 
         let translatedText = response.choices[0].message.content.trim();
+        translatedText = removeCodeBlocks(translatedText); 
 
         // 6. 번역된 파일을 'translated/' 디렉토리에 저장
         const translatedDir = path.resolve("translated");

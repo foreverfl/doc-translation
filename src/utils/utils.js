@@ -39,3 +39,7 @@ export function saveFile(outputFilePath, content) {
     fs.writeFileSync(outputFilePath, content, "utf-8");
     console.log(`✅ Translation completed: ${outputFilePath}`);
 }
+
+export function removeCodeBlocks(text) {
+    return text.replace(/```[\s\S]*?```/g, "").trim(); // 코드 블록 제거
+}
