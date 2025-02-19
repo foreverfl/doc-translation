@@ -1,7 +1,7 @@
-import nlp from "compromise";
-import OpenAI from "openai";
 import dotenv from "dotenv";
-import stopwords from "stopwords-iso" assert { type: "json" };
+import OpenAI from "openai";
+import fs from "fs";
+import path from "path";
 
 dotenv.config();
 
@@ -9,83 +9,44 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-async function translateWords(words) {
-    if (words.length === 0) {
-        console.log("⚠️ No words to translate.");
-        return {};
+/**
+ * Fine-tune the OpenAI model using newly translated terms.
+ * @param {Object} trainedWords - Object containing trained English, Korean, and Japanese words.
+ */
+export async function applyFineTuning(trainedWords) {
+    if (!trainedWords || !trainedWords.english.length) {
+        console.log("⚠️ No trained words available for fine-tuning.");
+        return;
     }
+
+    console.log("🚀 Preparing dataset for fine-tuning...");
+
+    // 1️⃣ Fine-tuning 데이터셋을 JSONL 형식으로 저장
+    const fineTuneData = trainedWords.english.map((word, i) => ({
+        prompt: `Translate '${word}' into Korean and Japanese.`,
+        completion: `Korean: ${trainedWords.korean[i]}, Japanese: ${trainedWords.japanese[i]}`
+    }));
+
+    const fineTuneFilePath = path.join(__dirname, "fine_tune_data.jsonl");
+    fs.writeFileSync(fineTuneFilePath, fineTuneData.map(entry => JSON.stringify(entry)).join("\n"));
 
     try {
-        console.log("🔍 Translating words:", words);
-        const prompt = `
-            Translate the following technical terms into Korean as a JSON object. Example:
-            {
-            "AI": "인공지능",
-            "Machine Learning": "기계 학습",
-            "Data": "데이터"
-            }
-            Translate these words:
-            ${JSON.stringify(words)}
-            `;
-
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.2,
+        // 2️⃣ OpenAI 서버에 파일 업로드
+        const fileUploadResponse = await openai.files.create({
+            purpose: "fine-tune",
+            file: fs.createReadStream(fineTuneFilePath),
         });
-        let translatedText = response.choices[0]?.message?.content || ""; 3
-        translatedText = translatedText.replace(/^```json\n|\n```$/g, "").trim();
-        console.log("📜 Raw Translated Text:", translatedText);
 
-        let translations = {};
-        try {
-            translations = JSON.parse(translatedText);
-        } catch (parseError) {
-            console.error("❌ Failed to parse JSON response, falling back to manual parsing...");
-            translations = translatedText
-                .split("\n")
-                .map(line => line.trim())
-                .filter(line => line.includes("-"))
-                .reduce((acc, line) => {
-                    const [eng, kor] = line.split("-").map(str => str.trim());
-                    acc[eng] = kor;
-                    return acc;
-                }, {});
-        }
+        console.log("✅ Fine-tune dataset uploaded successfully:", fileUploadResponse);
 
-        console.log("✅ Parsed Translations:", translations);
-        return translations;
+        // 3️⃣ Fine-tuning 시작
+        const fineTuneResponse = await openai.fineTunes.create({
+            training_file: fileUploadResponse.id,
+            model: process.env.MODEL_ID,
+        });
+
+        console.log("🚀 Fine-tuning started:", fineTuneResponse);
     } catch (error) {
-        console.error("❌ Error translating words:", error);
-        return {};
+        console.error("❌ Error during fine-tuning:", error);
     }
-}
-
-export function extractFrequentNouns(content, minCount = 5) {
-    const STOPWORDS = new Set(stopwords.en); // 영어 불용어 목록
-
-    const doc = nlp(content);
-    let words = doc.nouns().out("array");
-
-    words = words
-        .map(word => word.replace(/[^\w\s-]/g, "").trim()) // 특수문자 제거
-        .filter(word => word && !STOPWORDS.has(word.toLowerCase())); // 빈 문자열 및 불용어 제거
-
-    const wordCounts = words.reduce((acc, word) => {
-        acc[word] = (acc[word] || 0) + 1;
-        return acc;
-    }, {});
-
-    const frequentNouns = Object.entries(wordCounts)
-        .filter(([_, count]) => count >= minCount) // 최소 등장 횟수 조건
-        .map(([word, count]) => ({ word, count }));
-
-    if (frequentNouns.length === 0) {
-        console.log("⚠️ No frequent nouns found.");
-        return {};
-    }
-
-    console.log("🎯 Frequent Nouns:", frequentNouns);
-
-    return frequentNouns;
 }

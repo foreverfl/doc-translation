@@ -8,9 +8,11 @@
     "fetch-files": "node src/finetune/fetchFiles.js",
     "delete-file": "node src/finetune/deleteFile.js",
     "create-model": "node src/finetune/createFineTunedModel.js",
+    "rollback-model": "node src/finetune/rollbackFineTunedModel.js",
     "fetch-models": "node src/finetune/fetchFineTunedModels.js",
     "predict": "node src/predictCost.js",
-    "translate": "node src/translate.js",
+    "translate-file": "node src/translateFile.js",
+    "translate-folder": "node src/translateFolder.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "mogumogu",

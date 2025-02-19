@@ -1,0 +1,59 @@
+{"prompt": "Translate 'AI' into Korean and Japanese.", "completion": "Korean: 인공지능, Japanese: 人工知能"}
+{"prompt": "Translate 'Machine Learning' into Korean and Japanese.", "completion": "Korean: 기계 학습, Japanese: 機械学習"}
+{"prompt": "Translate 'Deep Learning' into Korean and Japanese.", "completion": "Korean: 딥러닝, Japanese: ディープラーニング"}
+{"prompt": "Translate 'Neural Network' into Korean and Japanese.", "completion": "Korean: 신경망, Japanese: ニューラルネットワーク"}
+{"prompt": "Translate 'Algorithm' into Korean and Japanese.", "completion": "Korean: 알고리즘, Japanese: アルゴリズム"}
+{"prompt": "Translate 'PostgreSQL' into Korean and Japanese.", "completion": "Korean: PostgreSQL, Japanese: PostgreSQL"}
+{"prompt": "Translate 'Database' into Korean and Japanese.", "completion": "Korean: 데이터베이스 (database), Japanese: データベース (database)"}
+{"prompt": "Translate 'Query' into Korean and Japanese.", "completion": "Korean: 쿼리 (query), Japanese: クエリ (query)"}
+{"prompt": "Translate 'Index' into Korean and Japanese.", "completion": "Korean: 인덱스, Japanese: インデックス"}
+{"prompt": "Translate 'Primary Key' into Korean and Japanese.", "completion": "Korean: 기본 키 (primary key), Japanese: 主キー (primary key)"}
+{"prompt": "Translate 'Foreign Key' into Korean and Japanese.", "completion": "Korean: 외래 키 (foreign key), Japanese: 外部キー (foreign key)"}
+{"prompt": "Translate 'React' into Korean and Japanese.", "completion": "Korean: React, Japanese: React"}
+{"prompt": "Translate 'Component' into Korean and Japanese.", "completion": "Korean: 컴포넌트, Japanese: コンポーネント"}
+{"prompt": "Translate 'State Management' into Korean and Japanese.", "completion": "Korean: 상태 관리, Japanese: 状態管理"}
+{"prompt": "Translate 'Props' into Korean and Japanese.", "completion": "Korean: 프롭스, Japanese: プロップス"}
+{"prompt": "Translate 'Hooks' into Korean and Japanese.", "completion": "Korean: 훅, Japanese: フック"}
+{"prompt": "Translate 'Virtual DOM' into Korean and Japanese.", "completion": "Korean: 가상 DOM, Japanese: 仮想DOM"}
+{"prompt": "Translate 'Docker' into Korean and Japanese.", "completion": "Korean: Docker, Japanese: Docker"}
+{"prompt": "Translate 'Container' into Korean and Japanese.", "completion": "Korean: 컨테이너, Japanese: コンテナ"}
+{"prompt": "Translate 'Image' into Korean and Japanese.", "completion": "Korean: 이미지, Japanese: イメージ"}
+{"prompt": "Translate 'Volume' into Korean and Japanese.", "completion": "Korean: 볼륨, Japanese: ボリューム"}
+{"prompt": "Translate 'Orchestration' into Korean and Japanese.", "completion": "Korean: 오케스트레이션, Japanese: オーケストレーション"}
+{"prompt": "Translate 'Kubernetes' into Korean and Japanese.", "completion": "Korean: 쿠버네티스, Japanese: クバネティス"}
+{"prompt": "Translate 'Docusaurus' into Korean and Japanese.", "completion": "Korean: Docusaurus, Japanese: Docusaurus"}
+{"prompt": "Translate 'Documentation' into Korean and Japanese.", "completion": "Korean: 문서화, Japanese: ドキュメンテーション"}
+{"prompt": "Translate 'Static Site Generator' into Korean and Japanese.", "completion": "Korean: 정적 사이트 생성기, Japanese: 静的サイトジェネレーター"}
+{"prompt": "Translate 'Markdown' into Korean and Japanese.", "completion": "Korean: 마크다운, Japanese: マークダウン"}
+{"prompt": "Translate 'MDX' into Korean and Japanese.", "completion": "Korean: MDX, Japanese: MDX"}
+{"prompt": "Translate 'Open Source' into Korean and Japanese.", "completion": "Korean: 오픈 소스, Japanese: オープンソース"}
+{"prompt": "Translate 'Repository' into Korean and Japanese.", "completion": "Korean: 저장소, Japanese: リポジトリ"}
+{"prompt": "Translate 'Pull Request' into Korean and Japanese.", "completion": "Korean: 풀 리퀘스트, Japanese: プルリクエスト"}
+{"prompt": "Translate 'Issue' into Korean and Japanese.", "completion": "Korean: 이슈, Japanese: イシュー"}
+{"prompt": "Translate 'Fork' into Korean and Japanese.", "completion": "Korean: 포크, Japanese: フォーク"}
+{"prompt": "Translate 'Branch' into Korean and Japanese.", "completion": "Korean: 브랜치, Japanese: ブランチ"}
+{"prompt": "Translate 'Server' into Korean and Japanese.", "completion": "Korean: 서버, Japanese: サーバー"}
+{"prompt": "Translate 'Client' into Korean and Japanese.", "completion": "Korean: 클라이언트, Japanese: クライアント"}
+{"prompt": "Translate 'Frontend' into Korean and Japanese.", "completion": "Korean: 프론트엔드, Japanese: フロントエンド"}
+{"prompt": "Translate 'Backend' into Korean and Japanese.", "completion": "Korean: 백엔드, Japanese: バックエンド"}
+{"prompt": "Translate 'API' into Korean and Japanese.", "completion": "Korean: API, Japanese: API"}
+{"prompt": "Translate 'REST' into Korean and Japanese.", "completion": "Korean: REST, Japanese: REST"}
+{"prompt": "Translate 'GraphQL' into Korean and Japanese.", "completion": "Korean: GraphQL, Japanese: GraphQL"}
+{"prompt": "Translate 'Authentication' into Korean and Japanese.", "completion": "Korean: 인증, Japanese: 認証"}
+{"prompt": "Translate 'Authorization' into Korean and Japanese.", "completion": "Korean: 인가, Japanese: 認可"}
+{"prompt": "Translate 'OAuth' into Korean and Japanese.", "completion": "Korean: OAuth, Japanese: OAuth"}
+{"prompt": "Translate 'JWT' into Korean and Japanese.", "completion": "Korean: JWT, Japanese: JWT"}
+{"prompt": "Translate 'Session' into Korean and Japanese.", "completion": "Korean: 세션, Japanese: セッション"}
+{"prompt": "Translate 'Cookie' into Korean and Japanese.", "completion": "Korean: 쿠키, Japanese: クッキー"}
+{"prompt": "Translate 'CI/CD' into Korean and Japanese.", "completion": "Korean: CI/CD, Japanese: CI/CD"}
+{"prompt": "Translate 'Deployment' into Korean and Japanese.", "completion": "Korean: 배포, Japanese: デプロイメント"}
+{"prompt": "Translate 'Pipeline' into Korean and Japanese.", "completion": "Korean: 파이프라인, Japanese: パイプライン"}
+{"prompt": "Translate 'Build' into Korean and Japanese.", "completion": "Korean: 빌드, Japanese: ビルド"}
+{"prompt": "Translate 'Test' into Korean and Japanese.", "completion": "Korean: 테스트, Japanese: テスト"}
+{"prompt": "Translate 'Automation' into Korean and Japanese.", "completion": "Korean: 자동화, Japanese: 自動化"}
+{"prompt": "Translate 'Cloud' into Korean and Japanese.", "completion": "Korean: 클라우드, Japanese: クラウド"}
+{"prompt": "Translate 'Infrastructure' into Korean and Japanese.", "completion": "Korean: 인프라스트럭처, Japanese: インフラストラクチャ"}
+{"prompt": "Translate 'IaaS' into Korean and Japanese.", "completion": "Korean: IaaS, Japanese: IaaS"}
+{"prompt": "Translate 'PaaS' into Korean and Japanese.", "completion": "Korean: PaaS, Japanese: PaaS"}
+{"prompt": "Translate 'Serverless' into Korean and Japanese.", "completion": "Korean: 서버리스, Japanese: サーバーレス"}
+{"prompt": "Translate 'DevOps' into Korean and Japanese.", "completion": "Korean: DevOps, Japanese: DevOps"}

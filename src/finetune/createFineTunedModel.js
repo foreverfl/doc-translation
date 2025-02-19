@@ -80,7 +80,7 @@ function saveModelIdToEnv(modelId) {
 }
 
 const modelName = process.argv[2] || "gpt-4o-mini-2024-07-18";
-const trainingFilePath = "data/empty_training.jsonl";
+const trainingFilePath = "prompts/start-data.jsonl";
 
 uploadTrainingFile(trainingFilePath)
     .then((trainingFileId) => createFineTunedModel(modelName, trainingFileId))
