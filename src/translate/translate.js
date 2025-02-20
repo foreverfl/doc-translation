@@ -155,7 +155,7 @@ export async function translateFileWithDefaultModel(inputFilePath, tableName = "
         console.log("✅ Translation successful:", translations.korean);
         await inputWordsWithoutTraining(translations, tableName);
 
-        // 5. GPT-4o-mini로 파일 번역
+        // 6. Perform full document translation using GPT-4o-mini
         const prompt = loadPromptByFileType(inputFilePath);
         const response = await openai.chat.completions.create({
             model: "gpt-4o-mini",
@@ -168,29 +168,23 @@ export async function translateFileWithDefaultModel(inputFilePath, tableName = "
             max_tokens: 16000,
         });
 
-        // 5. 번역된 텍스트 정리
+        // 7. Extract translated text
         let translatedText = response.choices[0].message.content.trim();
 
-        // 🚀 원본 번역 결과 저장
+        // 8: Remove code blocks from translated text
+        let cleanedTranslatedText = removeCodeBlocks(translatedText);
+
+        // 9: Save the cleaned translation output
         const translatedDir = path.resolve("translated");
         fs.mkdirSync(translatedDir, { recursive: true });
 
-        const outputFilePathOriginal = path.join(
-            translatedDir,
-            `translated_${path.basename(inputFilePath)}`
-        );
-        saveFile(outputFilePathOriginal, translatedText);
-
-        // 🚀 코드블럭 제거 후 저장
-        let cleanedTranslatedText = removeCodeBlocks(translatedText);
         const outputFilePathCleaned = path.join(
             translatedDir,
-            `translated_cleaned_${path.basename(inputFilePath)}`
+            `translated_${path.basename(inputFilePath)}`
         );
         saveFile(outputFilePathCleaned, cleanedTranslatedText);
 
         console.log(`✅ Translation completed: ${new Date().toISOString()}`);
-        console.log(`📂 Output file (original): ${outputFilePathOriginal}`);
         console.log(`📂 Output file (cleaned): ${outputFilePathCleaned}`);
 
     } catch (error) {
