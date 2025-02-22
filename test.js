@@ -1,18 +1,31 @@
-import fs from 'fs';
-import path from 'path';
-import { convertJSONToSGML } from './src/utils/utils.js'; 
+import { extractContentForTranslation, parseSGMLLines } from './src/utils/utils.js';
 
-// 테스트 JSON 데이터 불러오기 (위에서 제공한 JSON 데이터)
-const jsonData = JSON.parse(fs.readFileSync('test_data/pgfreespacemap.json', 'utf-8'));
+// ✅ 테스트할 SGML 파일 경로 설정
+const TEST_SGML_FILE = "test_data/pgfreespacemap.sgml";
 
-// SGML 파일명 설정 (jsonData에 `sect1.id`가 있으면 사용)
-const fileName = jsonData?.sect1?.$?.id || "output";
+// ✅ SGML 파일을 파싱하고 "contents" 데이터만 추출하는 함수
+async function testExtractSGMLContent(filePath) {
+    try {
+        console.log(`📢 Testing SGML file parsing: ${filePath}`);
 
-// JSON → SGML 변환
-const sgmlOutput = convertJSONToSGML(jsonData, fileName);
+        // ✅ SGML 파일 파싱
+        const parsedLines = parseSGMLLines(TEST_SGML_FILE);
+        parsedLines.forEach(entry => {
+            const entrySeq = String(entry.seq + 1).padStart(4, '0'); // 0001, 0002 형식 유지
+            const entryType = entry.type === "contents" ? "C" : "T"; // C = Contents, T = Tag
+            console.log(`${entrySeq} (${entryType}): ${entry.indent}${entry.data}`);
+        });
 
-// 결과 SGML 파일 저장 (translated/pgfreespacemap.sgml)
-const outputPath = path.join("translated", `${fileName}.sgml`);
-fs.writeFileSync(outputPath, sgmlOutput, "utf-8");
+        // ✅ "contents" 타입만 필터링
+        const textsToTranslate = extractContentForTranslation(parsedLines);
 
-console.log(`✅ SGML 파일 변환 완료: ${outputPath}`);
+        // ✅ JSON으로 변환하여 콘솔 출력
+        console.log("\n✅ Extracted JSON for Translation:");
+        console.log(JSON.stringify(textsToTranslate, null, 2));
+    } catch (error) {
+        console.error("❌ Error:", error);
+    }
+}
+
+// ✅ 실행
+testExtractSGMLContent(TEST_SGML_FILE);
