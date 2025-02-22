@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
-import { getAvailableModels } from "./utils/openaiUtils.js";
+import { fetchAvailableModels } from "./utils/openaiUtils.js";
 
 dotenv.config();
 
@@ -120,7 +120,7 @@ async function predictCost() {
         process.exit(1);
     }
 
-    const availableModels = await getAvailableModels();
+    const availableModels = await fetchAvailableModels();
     if (!availableModels.includes(model)) {
         console.error(`❌ Invalid model: ${model}. Available models: ${availableModels.join(", ")}`);
         process.exit(1);

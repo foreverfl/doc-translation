@@ -37,7 +37,6 @@ export async function translateWords(wordsObject) {
         });
 
         let translatedText = response.choices[0]?.message?.content?.trim() || "";
-        console.log("🔍 Raw API Response:", translatedText);
 
         // ✅ 4. Ensure JSON parsing is safe
         let translations = { english: [], korean: [], japanese: [] };
@@ -58,7 +57,6 @@ export async function translateWords(wordsObject) {
             };
         }
 
-        console.log("✅ Parsed Translations:", translations);
         return translations;
     } catch (error) {
         console.error("❌ Error translating words:", error);

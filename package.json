@@ -12,19 +12,22 @@
     "fetch-models": "node src/finetune/fetchFineTunedModels.js",
     "predict": "node src/predictCost.js",
     "translate-file": "node src/translateFile.js",
-    "translate-file-default": "node src/translateFileWithDefaultModel.js",
-    "translate-folder": "node src/translateFolder.js --finetuned",
-    "translate-folder-default": "node src/translateFolder.js",
+    "translate-folder": "node src/translateFolder.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "mogumogu",
   "license": "ISC",
   "dependencies": {
+    "@langchain/core": "^0.3.40",
+    "@langchain/openai": "^0.4.4",
     "compromise": "^14.14.4",
     "dotenv": "^16.4.7",
+    "fs": "^0.0.1-security",
     "openai": "^4.85.1",
+    "path": "^0.12.7",
     "pg": "^8.13.3",
     "stopwords-iso": "^1.1.0",
-    "tiktoken": "^1.0.20"
+    "tiktoken": "^1.0.20",
+    "xml2js": "^0.6.2"
   }
 }

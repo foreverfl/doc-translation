@@ -1,5 +1,6 @@
 import fs from "fs";
-import { translateFile } from "./translate/translate.js"; 
+import path from "path";
+import { translateSGMLFile } from "./translate/translate.js"; 
 
 const inputPath = process.argv[2];
 
@@ -13,5 +14,10 @@ if (!fs.existsSync(inputPath) || !fs.lstatSync(inputPath).isFile()) {
     process.exit(1);
 }
 
-console.log(`📄 Translating file: ${inputPath}`);
-translateFile(inputPath);
+if (path.extname(inputPath).toLowerCase() !== ".sgml") {
+    console.error("❌ Only .sgml files are supported.");
+    process.exit(1);
+}
+
+console.log(`📄 Translating SGML file: ${inputPath}`);
+translateSGMLFile(inputPath);
