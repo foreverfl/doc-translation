@@ -4,8 +4,10 @@ import dotenv from "dotenv";
 import fs from "fs";
 import ora from "ora";
 import path from "path";
+import { checkExistingWords } from "../db/checkExistingWords.js";
+import { createTable } from "../db/createTable.js";
 import { applyTranslations, extractContentForTranslation, loadPromptByFileType, parseSGMLLines, rebuildSGML, removeCodeBlocks } from "../utils/utils.js";
-
+import { extractFrequentNouns, filterContent, translateWords } from "./translateTerms.js";
 
 dotenv.config();
 
@@ -15,6 +17,47 @@ const openai = new ChatOpenAI({
     temperature: 0.2,
 });
 
+async function insertWordstoDatabase(inputFilePath, tableName = "translation_terms") {
+    // 1. Make a table if it doesn't exist
+    await createTable(tableName);
+
+    // 2. Read the file
+    let content = readFile(inputFilePath);
+
+    // 3. Exclude code blocks and html tags
+    content = filterContent(content);
+
+    // 4. Extract frequently used words
+    let extractedWords = extractFrequentNouns(content);
+
+    // 5. Check if the word is already in the database
+    extractedWords = await checkExistingWords(extractedWords);
+
+    // 6. Insert the words to the database
+    let translatedWords;
+    try {
+        translatedWords = await translateWords({ english: extractedWords });
+    } catch (error) {
+        console.error("🚨 Error during translation:", error);
+        return;
+    }
+
+    if (!translatedWords || !translatedWords.english || !translatedWords.korean || !translatedWords.japanese) {
+        console.error("❌ Translation failed: Invalid response format.");
+        return;
+    }
+
+    console.log("✅ Translation successful:", translations.korean);
+
+    // 7. Get untrained words from the database
+    const untrainedWords = await getUntrainedWordsForFineTuning();
+    const combinedWords = {
+        english: [...translations.english, ...untrainedWords.english],
+        korean: [...translations.korean, ...untrainedWords.korean],
+        japanese: [...translations.japanese, ...untrainedWords.japanese],
+    };
+
+}
 
 /**
  * Translates the given text content using OpenAI's translation service.
@@ -42,7 +85,7 @@ async function translateTextContent(textContent, filePath) {
     const response = await openai.invoke(formattedPrompt);
     const endTime = Date.now();
 
-    spinner.succeed(`✅ OpenAI Response Time: ${(endTime - startTime) / 1000} sec`); 
+    spinner.succeed(`✅ OpenAI Response Time: ${(endTime - startTime) / 1000} sec`);
 
     let translatedText = response.content.trim();
     translatedText = removeCodeBlocks(translatedText);
@@ -71,7 +114,7 @@ async function translateTextContent(textContent, filePath) {
 function logEntry(entry) {
     let entryType;
     if (entry.type === "contents") {
-        entryType = "C"; 
+        entryType = "C";
     } else if (entry.type === "tag") {
         entryType = "T";
     } else if (entry.type === "example") {
@@ -79,7 +122,7 @@ function logEntry(entry) {
     } else if (entry.type === "title") {
         entryType = "H";
     } else {
-        entryType = "?"; 
+        entryType = "?";
     }
 
     console.log(`${entry.seq.toString().padStart(4, '0')} (${entryType}): ${entry.indent}${entry.data}`);
@@ -97,6 +140,8 @@ function logEntry(entry) {
  */
 export async function translateSGMLFile(inputFilePath, mode = "test") {
     try {
+        insertWordstoDatabase(inputFilePath)
+
         const parsedLines = parseSGMLLines(inputFilePath);
         // console.log("=== before translation ===");
         // parsedLines.forEach(entry => logEntry(entry));
@@ -119,7 +164,7 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
 
             // Rename the original file to prevent overwriting
             const originalFilePath = path.join(dirName, `${baseName}_original${ext}`);
-            fs.renameSync(inputFilePath, originalFilePath); 
+            fs.renameSync(inputFilePath, originalFilePath);
 
             // Substitute the original file with the translated content
             outputFilePath = path.join(dirName, `${baseName}${ext}`);
