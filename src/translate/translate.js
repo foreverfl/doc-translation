@@ -6,7 +6,9 @@ import ora from "ora";
 import path from "path";
 import { checkExistingWords } from "../db/checkExistingWords.js";
 import { createTable } from "../db/createTable.js";
-import { applyTranslations, extractContentForTranslation, loadPromptByFileType, parseSGMLLines, rebuildSGML, removeCodeBlocks } from "../utils/utils.js";
+import { inputWordsWithTraining } from "../db/inputWords.js";
+import { countTokens } from "../predictCost.js";
+import { applyTranslations, extractContentForTranslation, loadPromptByFileType, parseSGMLLines, readFile, rebuildSGML, removeCodeBlocks } from "../utils/utils.js";
 import { extractFrequentNouns, filterContent, translateWords } from "./translateTerms.js";
 
 dotenv.config();
@@ -15,6 +17,7 @@ const openai = new ChatOpenAI({
     apiKey: process.env.OPENAI_API_KEY,
     model: "gpt-4o-mini",
     temperature: 0.2,
+    maxCompletionTokens: 16_384
 });
 
 async function insertWordstoDatabase(inputFilePath, tableName = "translation_terms") {
@@ -29,6 +32,11 @@ async function insertWordstoDatabase(inputFilePath, tableName = "translation_ter
 
     // 4. Extract frequently used words
     let extractedWords = extractFrequentNouns(content);
+
+    if(extractedWords.length === 0) {
+        console.log("⚠️ No words to extract. Continuing to the next step.");
+        return true;
+    }
 
     // 5. Check if the word is already in the database
     extractedWords = await checkExistingWords(extractedWords);
@@ -47,16 +55,14 @@ async function insertWordstoDatabase(inputFilePath, tableName = "translation_ter
         return;
     }
 
-    console.log("✅ Translation successful:", translations.korean);
+    console.log("✅ Terms translation successful:\n" + JSON.stringify(translatedWords, null, 2));
 
-    // 7. Get untrained words from the database
-    const untrainedWords = await getUntrainedWordsForFineTuning();
-    const combinedWords = {
-        english: [...translations.english, ...untrainedWords.english],
-        korean: [...translations.korean, ...untrainedWords.korean],
-        japanese: [...translations.japanese, ...untrainedWords.japanese],
-    };
+    // 7. Insert the words to the database
+    await inputWordsWithTraining(translatedWords, tableName);
 
+    console.log("✅ Words inserted to the database.");
+
+    return true;
 }
 
 /**
@@ -70,7 +76,7 @@ async function insertWordstoDatabase(inputFilePath, tableName = "translation_ter
 async function translateTextContent(textContent, filePath) {
     console.log(`📢 OpenAI translation request is started: `);
     const spinner = ora('Sending translation request to OpenAI...').start();
-
+    
     const promptTemplateStr = loadPromptByFileType(filePath);
 
     const prompt = new PromptTemplate({
@@ -81,6 +87,16 @@ async function translateTextContent(textContent, filePath) {
     const formattedPrompt = await prompt.format({
         textContent: JSON.stringify(textContent, null, 2)
     });
+
+    // predict cost
+    const tokens = await countTokens(formattedPrompt);
+    console.log(`🔹 Token count: ${tokens}`)
+    const pricing = {
+        "gpt-4o-mini": { input: 0.15, cached_input: 0.075, output: 0.60 }
+    };
+    const inputCost = (tokens / 1_000_000) * pricing["gpt-4o-mini"].input; 
+    console.log(`🔹 Input cost: $${inputCost.toFixed(2)}`);
+
     const startTime = Date.now();
     const response = await openai.invoke(formattedPrompt);
     const endTime = Date.now();
@@ -140,7 +156,11 @@ function logEntry(entry) {
  */
 export async function translateSGMLFile(inputFilePath, mode = "test") {
     try {
-        insertWordstoDatabase(inputFilePath)
+        const insertSuccess = await insertWordstoDatabase(inputFilePath);
+        if (!insertSuccess) {
+            console.error("❌ insertWordstoDatabase failed. Aborting translation.");
+            process.exit(1);
+        }
 
         const parsedLines = parseSGMLLines(inputFilePath);
         // console.log("=== before translation ===");

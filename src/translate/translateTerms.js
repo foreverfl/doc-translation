@@ -1,66 +1,72 @@
+import { PromptTemplate } from "@langchain/core/prompts";
+import { ChatOpenAI } from "@langchain/openai";
 import nlp from "compromise";
 import dotenv from "dotenv";
 import fs from "fs/promises";
-import OpenAI from "openai";
 import path from "path";
 import stopwords from "stopwords-iso" assert { type: "json" };
 
 dotenv.config();
 
-const openai = new OpenAI({
+const openai = new ChatOpenAI({
     apiKey: process.env.OPENAI_API_KEY,
+    model: "gpt-4o-mini",
+    temperature: 0.2,  
 });
 
 export async function translateWords(wordsObject) {
+
+    console.log("📌 wordsObject (입력):", wordsObject);
+
     if (!wordsObject || !wordsObject.english || wordsObject.english.length === 0) {
         console.log("⚠️ No words to translate.");
         return { english: [], korean: [], japanese: [] };
     }
 
     try {
-        console.log("🔍 Translating words:", wordsObject.english);
-
         // ✅ 1. Load prompt template
-        const promptTemplate = await fs.readFile(path.resolve("prompts/terms.txt"), "utf-8");
+        const promptTemplateStr = await fs.readFile(path.resolve("prompts/terms.txt"), "utf-8");
 
         // ✅ 2. Inject word list into prompt
-        const prompt = promptTemplate.replace("{WORDS_ARRAY}", JSON.stringify(wordsObject.english));
-
-        // ✅ 3. Call OpenAI API
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-                { role: "system", content: "You are a professional translator specializing in technical terms." },
-                { role: "user", content: prompt }
-            ],
-            temperature: 0.2,
+        const prompt = new PromptTemplate({
+            template: promptTemplateStr,
+            inputVariables: ["WORDS_ARRAY"],
         });
 
-        let translatedText = response.choices[0]?.message?.content?.trim() || "";
+        const formattedPrompt = await prompt.format({
+            WORDS_ARRAY: JSON.stringify(wordsObject.english),
+        });
+
+        // ✅ 3. Call OpenAI API
+        const response = await openai.invoke(formattedPrompt);
+
+        console.log("🔍 Raw OpenAI Response:\n", response.content);
+
+        let translatedText = response.content.trim();
 
         // ✅ 4. Ensure JSON parsing is safe
-        let translations = { english: [], korean: [], japanese: [] };
+        let translatedWords = { english: [], korean: [], japanese: [] };
         try {
             translatedText = translatedText.replace(/^```json\n|\n```$/g, "").trim(); // ✅ JSON 코드 블록 제거
-            translations = JSON.parse(translatedText);
+            translatedWords = JSON.parse(translatedText);
 
             // ✅ Validate JSON structure
-            if (!Array.isArray(translations.english) || !Array.isArray(translations.korean) || !Array.isArray(translations.japanese)) {
+            if (!Array.isArray(translatedWords.english) || !Array.isArray(translatedWords.korean) || !Array.isArray(translatedWords.japanese)) {
                 throw new Error("Invalid JSON format");
             }
         } catch (parseError) {
             console.error("❌ Failed to parse JSON response, falling back to manual parsing...");
-            translations = {
+            translatedWords = {
                 english: wordsObject.english,
-                korean: wordsObject.english.map(() => "번역 오류"),
-                japanese: wordsObject.english.map(() => "翻訳エラー"),
+                korean: wordsObject.english.map(() => null),
+                japanese: wordsObject.english.map(() => null),
             };
         }
 
-        return translations;
+        return translatedWords;
     } catch (error) {
         console.error("❌ Error translating words:", error);
-        return { english: wordsObject.english, korean: wordsObject.english.map(() => "번역 오류"), japanese: wordsObject.english.map(() => "翻訳エラー") };
+        return { english: wordsObject.english, korean: wordsObject.english.map(() => null), japanese: wordsObject.english.map(() => null) };
     }
 }
 

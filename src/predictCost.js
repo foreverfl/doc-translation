@@ -5,8 +5,8 @@ import { fetchAvailableModels } from "./utils/openaiUtils.js";
 
 dotenv.config();
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; 
-const IGNORED_FOLDERS = ["node_modules", ".git", "dist", "build"]; 
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const IGNORED_FOLDERS = ["node_modules", ".git", "dist", "build"];
 
 const MODEL_PRICING = {
     "gpt-4o": { input: 2.50, cached_input: 1.25, output: 10.00 },
@@ -20,14 +20,14 @@ const MODEL_PRICING = {
 
 let totalTokens = 0;
 let startTime = Date.now();
-let analyzing = true; 
+let analyzing = true;
 
 async function loadTiktoken() {
     const tiktoken = await import('tiktoken');
     return tiktoken.get_encoding("cl100k_base");
 }
 
-async function countTokens(text) {
+export async function countTokens(text) {
     try {
         const enc = await loadTiktoken();
         return enc.encode(text).length;
@@ -50,6 +50,26 @@ async function processFile(filePath) {
     return await countTokens(content);
 }
 
+function estimateCost(tokens, model) {
+    const pricing = MODEL_PRICING[model] || MODEL_PRICING["gpt-4o-mini"];
+    return {
+        inputCost: (tokens / 1_000_000) * pricing.input,
+        outputCost: (tokens / 1_000_000) * pricing.output,
+        totalCost: (tokens / 1_000_000) * (pricing.input + pricing.output)
+    };
+}
+
+function printCurrentResult(model) {
+    const costEstimate = estimateCost(totalTokens, model);
+    const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
+
+    console.log("\n\n⚠️ Process interrupted. Showing current results:");
+    console.log(`📊 Total Tokens (so far): ${totalTokens}`);
+    console.log(`💰 Estimated Cost for ${model} (so far): $${costEstimate.totalCost.toFixed(2)}`);
+    console.log(`⏳ Elapsed time: ${elapsedTime} seconds`);
+}
+
+
 async function analyzeFolder(folderPath, model = "gpt-4o-mini", allowedExtensions = [".sgml", ".md", ".markdown", ".adoc", ".asciidoc", ".mdx"]) {
     console.log(`🚀 Analyzing folder: ${folderPath} | Model: ${model}`);
 
@@ -63,7 +83,7 @@ async function analyzeFolder(folderPath, model = "gpt-4o-mini", allowedExtension
             const stat = fs.lstatSync(filePath);
 
             if (IGNORED_FOLDERS.some(ignored => filePath.includes(`/${ignored}`))) {
-                continue; 
+                continue;
             }
 
             if (stat.isDirectory()) {
@@ -87,28 +107,8 @@ async function analyzeFolder(folderPath, model = "gpt-4o-mini", allowedExtension
     try {
         await processDirectory(folderPath);
     } catch (error) {
-        if (error === "Process interrupted.") return; 
+        if (error === "Process interrupted.") return;
     }
-}
-
-function printCurrentResult(model) {
-    const costEstimate = estimateCost(totalTokens, model);
-    const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
-
-    console.log("\n\n⚠️ Process interrupted. Showing current results:");
-    console.log(`📊 Total Tokens (so far): ${totalTokens}`);
-    console.log(`💰 Estimated Cost for ${model} (so far): $${costEstimate.totalCost.toFixed(2)}`);
-    console.log(`⏳ Elapsed time: ${elapsedTime} seconds`);
-}
-
-
-function estimateCost(tokens, model) {
-    const pricing = MODEL_PRICING[model] || MODEL_PRICING["gpt-4o-mini"];
-    return {
-        inputCost: (tokens / 1_000_000) * pricing.input,
-        outputCost: (tokens / 1_000_000) * pricing.output,
-        totalCost: (tokens / 1_000_000) * (pricing.input + pricing.output)
-    };
 }
 
 async function predictCost() {
@@ -130,13 +130,13 @@ async function predictCost() {
         analyzing = false;
         console.log("\n🛑 Stopping analysis...");
         printCurrentResult(model);
-        setTimeout(() => process.exit(0), 500); 
+        setTimeout(() => process.exit(0), 500);
     });
 
     try {
         await analyzeFolder(folderPath, model);
     } catch (error) {
-        if (error.message !== "Process interrupted.") throw error; 
+        if (error.message !== "Process interrupted.") throw error;
     }
 
 
@@ -144,4 +144,3 @@ async function predictCost() {
     process.exit(0);
 }
 
-predictCost();

@@ -2,27 +2,30 @@ You are a professional technical translator specializing in software engineering
 
 Translate the following English technical terms into Korean and Japanese.
 
-⚠️ **Rules for translation:**
-1. **DO NOT translate proper nouns, well-known technology names, or software-related abbreviations.**  
+The words to translate are STRICTLY LIMITED to the following list:
+
+{WORDS_ARRAY}
+
+⚠️ Rules for translation:
+1. DO NOT translate proper nouns, well-known technology names, or software-related abbreviations.  
    (e.g., "PostgreSQL", "TCP/IP", "JSON", "API", "Git", "Linux", "Windows", "OpenAI", "Python").
-2. **For database-related terms, provide a translation but include the original English term in parentheses.**  
+2. For database-related terms, provide a translation without including the original English term in parentheses.
    (e.g., `"database"` → `"데이터베이스 (database)"`, `"query"` → `"쿼리 (query)"`).
-3. **For general computing and software-related terms, provide a natural translation.**  
+3. For general computing and software-related terms, provide a natural translation.  
    (e.g., `"server"` → `"서버"`, `"script"` → `"스크립트"`, `"parallel"` → `"병렬"`).
-4. **DO NOT translate symbols, abbreviations, or single-character options.**  
+4. DO NOT translate symbols, abbreviations, or single-character options.  
    (e.g., "-c", "CLI", "UI", "SDK").
-5. **Translate all other words naturally, ensuring clarity in technical contexts.**
-6. **DO NOT omit words unnecessarily. Provide translations for all words unless explicitly instructed otherwise.**
-7. **If a direct translation is unclear, provide the best possible equivalent while maintaining technical accuracy.**
+5. Translate all other words naturally, ensuring clarity in technical contexts.
+6. DO NOT omit words unnecessarily. Provide translations for all words unless explicitly instructed otherwise.
+7. If a direct translation is unclear, provide the best possible equivalent while maintaining technical accuracy.
 
-Return the output as a JSON object with three separate arrays: `"english"`, `"korean"`, and `"japanese"`.  
-The output **MUST** be a valid JSON object **without any formatting artifacts such as markdown or code blocks.**  
-Strictly follow this format:
-
+📌 The output MUST be returned as a pure JSON object without any markdown, code blocks, or additional formatting.  
+🚨 DO NOT include markdown code blocks such as ```json  
+💡 Example Output:
 ```json
-{ 
-  "english": ["word1", "word2", "word3"],
-  "korean": ["번역1", "번역2", "번역3"],
-  "japanese": ["翻訳1", "翻訳2", "翻訳3"]
-}
+{{ 
+  "english": ["table", "access", "method", "handler", "callbacks"],
+  "korean": ["테이블", "액세스", "메소드", "핸들러", "콜백"],
+  "japanese": ["テーブル", "アクセス", "メソッド", "ハンドラー", "コールバック"]
+}}
 ```

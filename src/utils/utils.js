@@ -170,8 +170,7 @@ export function applyTranslations(beforeLines, translatedLines) {
         if (entry.type === "contents" || entry.type === "title") {  
             const seqStr = String(entry.seq + 1).padStart(4, '0');  // Adjusted seq value by adding +1 to ensure consistency
             const translatedText = translatedMap.has(seqStr) ? translatedMap.get(seqStr) : entry.data;
-            console.log(`🔍 Mapping seq=${seqStr}: Original="${entry.data}" → Translated="${translatedText}"`);
-
+            // console.log(`🔍 Mapping seq=${seqStr}: Original="${entry.data}" → Translated="${translatedText}"`);
             return { ...entry, data: `${entry.indent}${translatedText}` };
         }
         return entry; 

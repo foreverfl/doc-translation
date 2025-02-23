@@ -1,7 +1,7 @@
 import pkg from "pg";
 const { Pool } = pkg;
 
-const pool = new Pool({
+export const pool = new Pool({
     user: "user",
     password: "password",
     host: "localhost",
@@ -52,6 +52,3 @@ export async function closeDB() {
         console.log("⚠️ Connection pool already closed.");
     }
 }
-
-
-export default pool;
