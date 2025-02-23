@@ -134,8 +134,16 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
     }
 }
 
-export async function translateFolder(folderPath, withFineTuned = false, allowedExtensions = [".sgml", ".md", ".markdown", ".adoc", ".asciidoc", ".mdx"]) {
-    console.log(`🚀 Translating folder: ${folderPath} (Using Fine-Tuned Model: ${withFineTuned ? "YES" : "NO"})`);
+/**
+ * Translates all the documents in the specified folder.
+ *
+ * @param {string} folderPath - The path to the folder containing files to translate.
+ * @param {string} [mode="test"] - The mode of operation: 'test' (save in 'translated' folder) or 'real' (save in the original folder).
+ * @param {Array<string>} [allowedExtensions] - List of file extensions to be translated.
+ * @returns {Promise<void>} - A promise that resolves when the translation is complete.
+ */
+export async function translateFolder(folderPath, mode = "test", allowedExtensions = [".sgml", ".md", ".markdown", ".adoc", ".asciidoc", ".mdx"]) {
+    console.log(`🚀 Translating folder: ${folderPath} (Mode: ${mode})`);
 
     async function processDirectory(directory) {
         const files = fs.readdirSync(directory);
@@ -146,16 +154,12 @@ export async function translateFolder(folderPath, withFineTuned = false, allowed
 
             if (stat.isDirectory()) {
                 console.log(`📂 Entering folder: ${filePath}`);
-                await processDirectory(filePath);
+                await processDirectory(filePath);  // Recurse into subdirectory
             } else {
                 const fileExt = path.extname(file).toLowerCase();
                 if (allowedExtensions.includes(fileExt)) {
                     console.log(`📄 Translating file: ${filePath}`);
-                    if (withFineTuned) {
-                        await translateFile(filePath);
-                    } else {
-                        await translateFileWithDefaultModel(filePath);
-                    }
+                    await translateSGMLFile(filePath, mode);  // Use the updated translateSGMLFile function
                 } else {
                     console.log(`⚠️ Skipping unsupported file: ${filePath}`);
                 }

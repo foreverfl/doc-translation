@@ -1,51 +1,67 @@
-# 📜 ドキュメント翻訳ボット
+# 📜 ドキュメント翻訳CLI
 
 [🇬🇧 English Version](README.md) | [🇰🇷 한국어 버전](README_ko.md)
 
-## 🚀 概要
-**ドキュメント翻訳ボット**は、OpenAI APIを使用してドキュメントを自動翻訳するツールです。  
-大量の翻訳をサポートし、**カスタム用語集**を利用して翻訳の一貫性を維持します。
+## 🚀 はじめに
+**ドキュメント翻訳CLI**は、OpenAI APIを使用して文書を自動的に翻訳するツールです。  
+バッチ翻訳をサポートし、**カスタム用語辞書**を保持して翻訳の一貫性を保証します。
 
 ## 🛠 インストール
 
-### 1️⃣ 事前準備
-- Node.js (v18以上推奨)
-- OpenAI APIキー
+### 1️⃣ 必要なもの
+- Node.js (v18+ 推奨)
+- Docker (オプション、モデルチューニング用)
+- OpenAI API キー
 
-### 2️⃣ 設定
-1. このリポジトリをクローンします。
+### 2️⃣ セットアップ
+1. このリポジトリをクローンします:
    ```sh
    git clone https://github.com/your-repo/translation-bot.git
-   cd translation-bot
+   cd doc-translation
    ```
 
-2. パッケージをインストールします。
+2. Docker設定 (オプション):
+   ```sh
+   docker compose up -d
+   ```
+   - これにより、カスタム用語を保存するためのPostgreSQLデータベースが作成されます。
+
+2. 依存関係をインストール:
    ```sh
    npm install
    ```
 
-3. `.env`ファイルを作成します。
+3. `.env` ファイルを作成:
    ```sh
-   cp .env.example .env
+   touch .env
    ```
 
-4. `.env`ファイルにOpenAI APIキーを入力します。
+4. `.env` ファイルにOpenAI APIキーを追加:
    ```
    OPENAI_API_KEY=your_api_key
    ```
 
-## 🚀 使い方
+## 🚀 使用方法
 
-### 1️⃣ 単一ファイルの翻訳
+### 翻訳コストの予測
 ```sh
-npm run translate file_path
+npm run predict folder_path
 ```
 例:
 ```sh
-npm run translate ./docs/sample.md
+npm run predict ./docs/
 ```
 
-### 2️⃣ フォルダー全体の翻訳 (バッチ処理)
+### 単一ファイルの翻訳
+```sh
+npm run translate-file file_path
+```
+例:
+```sh
+npm run translate ~/docs/sample.md
+```
+
+### フォルダの翻訳（バッチ処理）
 ```sh
 npm run translate-folder folder_path
 ```
@@ -54,26 +70,9 @@ npm run translate-folder folder_path
 npm run translate-folder ./docs/
 ```
 
-### 3️⃣ ファインチューニングモデルの作成
-```sh
-npm run create-model
-```
+## このプロジェクトで翻訳されたドキュメント
 
-## 📂 プロジェクト構成
-```
-translation-bot/
-│── src/
-│   ├── translate.js              # 単一ファイルの翻訳
-│   ├── translateFolder.js        # フォルダー全体の翻訳
-│   ├── createFineTunedModel.js   # ファインチューニングモデルの作成
-│   ├── utils.js                  # ユーティリティ関数 (ファイル処理など)
-│── terms/                        # カスタム用語集
-│── .env.example                  # 環境変数のサンプル
-│── package.json                   # npmスクリプト
-│── README.md                      # 英語バージョン
-│── README_ko.md                    # 韓国語バージョン
-│── README_ja.md                    # 日本語バージョン
-```
+- [PostgreSQL Documentation - 日本語](https://postgresql.mogumogu.dev/)
 
 ## 📜 ライセンス
-このプロジェクトはMITライセンスの下で提供されています。
+このプロジェクトはMITライセンスの下で公開されています。

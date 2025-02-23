@@ -1,23 +1,30 @@
-# 📜 Document Translation Bot
+# 📜 Document Translation CLI
 
 [🇰🇷 한국어 버전](README_ko.md) | [🇯🇵 日本語バージョン](README_ja.md)
 
 ## 🚀 Introduction
-The **Document Translation Bot** is an automated tool that translates documents using the OpenAI API.  
+The **Document Translation CLI** is an automated tool that translates documents using the OpenAI API.  
 It supports batch translation and maintains a **custom terminology dictionary** to ensure translation consistency.
 
 ## 🛠 Installation
 
 ### 1️⃣ Prerequisites
 - Node.js (v18+ recommended)
+- Docker (optional, for creating fine-tuned models)
 - An OpenAI API Key
 
 ### 2️⃣ Setup
 1. Clone this repository:
    ```sh
    git clone https://github.com/your-repo/translation-bot.git
-   cd translation-bot
+   cd doc-translation
    ```
+
+2. Docker setup (optional):
+   ```sh
+   docker compose up -d
+   ```
+   - This will create a PostgreSQL database for storing custom terminology.
 
 2. Install dependencies:
    ```sh
@@ -26,7 +33,7 @@ It supports batch translation and maintains a **custom terminology dictionary** 
 
 3. Create a `.env` file:
    ```sh
-   cp .env.example .env
+   touch .env
    ```
 
 4. Add your OpenAI API key in `.env`:
@@ -36,16 +43,25 @@ It supports batch translation and maintains a **custom terminology dictionary** 
 
 ## 🚀 Usage
 
-### 1️⃣ Translate a single file
+### Predict the cost of translation
 ```sh
-npm run translate file_path
+npm run predict folder_path
 ```
 Example:
 ```sh
-npm run translate ./docs/sample.md
+npm run predict ./docs/
 ```
 
-### 2️⃣ Translate a folder (batch processing)
+### Translate a single file
+```sh
+npm run translate-file file_path
+```
+Example:
+```sh
+npm run translate ~/docs/sample.md
+```
+
+### Translate a folder (batch processing)
 ```sh
 npm run translate-folder folder_path
 ```
@@ -54,26 +70,9 @@ Example:
 npm run translate-folder ./docs/
 ```
 
-### 3️⃣ Create a fine-tuned model
-```sh
-npm run create-model
-```
+## Documentation translated by this project
 
-## 📂 Project Structure
-```
-translation-bot/
-│── src/
-│   ├── translate.js              # Translate a single file
-│   ├── translateFolder.js        # Translate an entire folder
-│   ├── createFineTunedModel.js   # Create fine-tuned models
-│   ├── utils.js                  # Utility functions (file handling, etc.)
-│── terms/                        # Custom terminology dictionary
-│── .env.example                  # Sample environment variables
-│── package.json                   # npm scripts
-│── README.md                      # English version
-│── README_ko.md                    # Korean version
-│── README_ja.md                    # Japanese version
-```
+- [PostgreSQL Documentation - Korean](https://postgresql.mogumogu.dev/)
 
 ## 📜 License
 This project is licensed under the MIT License.
