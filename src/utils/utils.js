@@ -72,6 +72,39 @@ export function removeCodeBlocks(text) {
     return text.replace(/```(?:[\w]*)?(?:\n|\r\n|)([\s\S]*?)(?:\n|\r\n)?```/g, "$1").trim();
 }
 
+/**
+ * Determines the type of a given line based on its content and context.
+ *
+ * @param {string} trimmedLine - The line of text to be evaluated, trimmed of leading and trailing whitespace.
+ * @param {boolean} inExampleBlock - A flag indicating whether the current line is within an example block.
+ * @returns {Object} An object representing the type of the line and the updated example block status.
+ * @returns {string} return.type - The type of the line, which can be "example", "title", "tag", or "contents".
+ * @returns {boolean} [return.inExampleBlock] - The updated status of the example block, only present if the type is "example".
+ */
+function getTagType(trimmedLine, inExampleBlock) {
+    if (trimmedLine.startsWith("<programlisting>")) {
+        return { type: "example", inExampleBlock: true }; 
+    } else if (trimmedLine.startsWith("</programlisting>")) {
+        return { type: "example", inExampleBlock: false };
+    } else if (trimmedLine.startsWith("<title>") || trimmedLine.startsWith("<primary>")) {
+        return { type: "title" }; 
+    } else if (trimmedLine.startsWith("<") && trimmedLine.endsWith(">")) {
+        return { type: "tag" };  
+    } else {
+        return { type: "contents" };
+    }
+}
+
+/**
+ * Parses the lines of an SGML file and returns an array of parsed line objects.
+ *
+ * @param {string} filePath - The path to the SGML file to be parsed.
+ * @returns {Array<Object>} An array of objects representing the parsed lines.
+ * @returns {number} return[].seq - The sequence number of the line.
+ * @returns {string} return[].type - The type of the line based on SGML tags.
+ * @returns {string} return[].data - The original line content.
+ * @returns {string} return[].indent - The leading spaces of the line.
+ */
 export function parseSGMLLines(filePath) {
     const fileContent = fs.readFileSync(filePath, "utf-8");
     const lines = fileContent.split("\n");
@@ -82,20 +115,8 @@ export function parseSGMLLines(filePath) {
         let trimmedLine = line.trim();
         let leadingSpaces = line.match(/^(\s*)/)[0];
 
-        let type;
-        if (trimmedLine.startsWith("<programlisting>")) {
-            inExampleBlock = true;
-            type = "tag";
-        } else if (trimmedLine.startsWith("</programlisting>")) {
-            inExampleBlock = false;
-            type = "tag";
-        } else if (inExampleBlock) {
-            type = "example";
-        } else if (trimmedLine.startsWith("<") && trimmedLine.endsWith(">")) {
-            type = "tag";
-        } else {
-            type = "contents";
-        }
+        const { type, inExampleBlock: newInExampleBlock } = getTagType(trimmedLine, inExampleBlock);
+        inExampleBlock = newInExampleBlock; 
 
         return { seq: index, type, data: line, indent: leadingSpaces };
     });
@@ -114,7 +135,7 @@ export function parseSGMLLines(filePath) {
  */
 export function extractContentForTranslation(parsedLines) {
     return parsedLines
-        .filter(entry => entry.type === "contents") 
+        .filter(entry => entry.type === "contents" || entry.type === "title")  
         .map(entry => ({
             seq: String(entry.seq + 1).padStart(4, '0'), 
             text: entry.data.trim()
@@ -146,7 +167,7 @@ export function applyTranslations(beforeLines, translatedLines) {
     });
 
     return beforeLines.map(entry => {
-        if (entry.type === "contents") {
+        if (entry.type === "contents" || entry.type === "title") {  
             const seqStr = String(entry.seq + 1).padStart(4, '0');  // Adjusted seq value by adding +1 to ensure consistency
             const translatedText = translatedMap.has(seqStr) ? translatedMap.get(seqStr) : entry.data;
             console.log(`🔍 Mapping seq=${seqStr}: Original="${entry.data}" → Translated="${translatedText}"`);

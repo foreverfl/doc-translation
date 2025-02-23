@@ -2,6 +2,7 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { ChatOpenAI } from "@langchain/openai";
 import dotenv from "dotenv";
 import fs from "fs";
+import ora from "ora";
 import path from "path";
 import { applyTranslations, extractContentForTranslation, loadPromptByFileType, parseSGMLLines, rebuildSGML, removeCodeBlocks } from "../utils/utils.js";
 
@@ -15,8 +16,17 @@ const openai = new ChatOpenAI({
 });
 
 
+/**
+ * Translates the given text content using OpenAI's translation service.
+ *
+ * @param {string} textContent - The text content to be translated.
+ * @param {string} filePath - The file path to determine the prompt template.
+ * @returns {Promise<Object>} - A promise that resolves to the translated text content as a JSON object.
+ * @throws {Error} - Throws an error if the response from OpenAI is not valid JSON.
+ */
 async function translateTextContent(textContent, filePath) {
     console.log(`📢 OpenAI translation request is started: `);
+    const spinner = ora('Sending translation request to OpenAI...').start();
 
     const promptTemplateStr = loadPromptByFileType(filePath);
 
@@ -32,7 +42,7 @@ async function translateTextContent(textContent, filePath) {
     const response = await openai.invoke(formattedPrompt);
     const endTime = Date.now();
 
-    console.log(`✅ OpenAI Response Time: ${(endTime - startTime) / 1000} sec\n`);
+    spinner.succeed(`✅ OpenAI Response Time: ${(endTime - startTime) / 1000} sec`); 
 
     let translatedText = response.content.trim();
     translatedText = removeCodeBlocks(translatedText);
@@ -47,7 +57,32 @@ async function translateTextContent(textContent, filePath) {
         console.log(translatedText);
         throw error;
     }
+}
 
+/**
+ * Logs a formatted entry to the console.
+ *
+ * @param {Object} entry - The entry object to log.
+ * @param {string} entry.type - The type of the entry. Can be "contents", "tag", "example", "title", or other.
+ * @param {number} entry.seq - The sequence number of the entry.
+ * @param {string} entry.indent - The indentation string for the entry.
+ * @param {string} entry.data - The data content of the entry.
+ */
+function logEntry(entry) {
+    let entryType;
+    if (entry.type === "contents") {
+        entryType = "C"; 
+    } else if (entry.type === "tag") {
+        entryType = "T";
+    } else if (entry.type === "example") {
+        entryType = "E";
+    } else if (entry.type === "title") {
+        entryType = "H";
+    } else {
+        entryType = "?"; 
+    }
+
+    console.log(`${entry.seq.toString().padStart(4, '0')} (${entryType}): ${entry.indent}${entry.data}`);
 }
 
 /**
@@ -63,39 +98,15 @@ async function translateTextContent(textContent, filePath) {
 export async function translateSGMLFile(inputFilePath, mode = "test") {
     try {
         const parsedLines = parseSGMLLines(inputFilePath);
-        console.log("=== before translation ===");
-        // parsedLines.forEach((entry) => {
-        //     let entryType;
-        //     if (entry.type === "contents") {
-        //         entryType = "C"; 
-        //     } else if (entry.type === "tag") {
-        //         entryType = "T";
-        //     } else if (entry.type === "example") {
-        //         entryType = "E";
-        //     } else {
-        //         entryType = "?"; 
-        //     }
-        
-        //     console.log(`${entry.seq.toString().padStart(4, '0')} (${entryType}): ${entry.indent}${entry.data}`);
-        // });
+        // console.log("=== before translation ===");
+        // parsedLines.forEach(entry => logEntry(entry));
+
         const textsToTranslate = extractContentForTranslation(parsedLines);
         const translatedTexts = await translateTextContent(textsToTranslate, inputFilePath);
         const translatedLines = applyTranslations(parsedLines, translatedTexts);
         // console.log("=== after translation ===");
-        // translatedLines.forEach((entry) => {
-        //     let entryType;
-        //     if (entry.type === "contents") {
-        //         entryType = "C"; 
-        //     } else if (entry.type === "tag") {
-        //         entryType = "T";
-        //     } else if (entry.type === "example") {
-        //         entryType = "E";
-        //     } else {
-        //         entryType = "?"; 
-        //     }
-        
-        //     console.log(`${entry.seq.toString().padStart(4, '0')} (${entryType}): ${entry.indent}${entry.data}`);
-        // });
+        // translatedLines.forEach(entry => logEntry(entry));
+
         let outputFilePath;
         if (mode === "test") {
             const outputDir = "translated";
@@ -105,7 +116,13 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
             const dirName = path.dirname(inputFilePath);
             const baseName = path.basename(inputFilePath, path.extname(inputFilePath));
             const ext = path.extname(inputFilePath);
-            outputFilePath = path.join(dirName, `${baseName}_translated${ext}`);
+
+            // Rename the original file to prevent overwriting
+            const originalFilePath = path.join(dirName, `${baseName}_original${ext}`);
+            fs.renameSync(inputFilePath, originalFilePath); 
+
+            // Substitute the original file with the translated content
+            outputFilePath = path.join(dirName, `${baseName}${ext}`);
         } else {
             throw new Error("Invalid mode. Use 'test' or 'real'.");
         }

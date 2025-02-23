@@ -140,3 +140,6 @@ dist
 /test_data
 /translated
 /docs
+
+# vscode
+.vscode
