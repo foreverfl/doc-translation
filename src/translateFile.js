@@ -20,4 +20,4 @@ if (path.extname(inputPath).toLowerCase() !== ".sgml") {
 }
 
 console.log(`📄 Translating SGML file: ${inputPath}`);
-translateSGMLFile(inputPath);
+translateSGMLFile(inputPath, "real");

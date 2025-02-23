@@ -3,7 +3,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
-import { applyTranslations, extractContentForTranslation, parseSGMLLines, rebuildSGML, removeCodeBlocks } from "../utils/utils.js";
+import { applyTranslations, extractContentForTranslation, loadPromptByFileType, parseSGMLLines, rebuildSGML, removeCodeBlocks } from "../utils/utils.js";
 
 
 dotenv.config();
@@ -15,42 +15,14 @@ const openai = new ChatOpenAI({
 });
 
 
-async function translateTextContent(textContent) {
+async function translateTextContent(textContent, filePath) {
     console.log(`📢 OpenAI translation request is started: `);
 
+    const promptTemplateStr = loadPromptByFileType(filePath);
+
     const prompt = new PromptTemplate({
-        template: `
-            You are a professional technical translator specializing in structured documents like SGML/XML.
-            Your task is to translate the following English text into Korean **while strictly preserving the SGML structure**.
-    
-            ## Instructions:
-            - **DO NOT modify SGML tags or attributes.**
-            - **ONLY translate the text between tags.**
-            - **DO NOT change or remove the line numbers. Keep every line in its original order.**
-            - **If a line is empty, KEEP IT EMPTY in the output. Do not remove or merge lines.**
-            - **If a line is empty, return it as an empty string (""). Do not omit empty lines.**
-            - **Return a JSON array where each object contains 'seq' and 'text'.**
-            - **Ensure technical terms remain consistent.**
-    
-            ## Input:
-            The following is a JSON array of text lines that need to be translated.  
-            Each object contains a 'lineNumber' and 'text'.  
-    
-            \`\`\`json
-            {textContent}
-            \`\`\`
-    
-            ## Output Format:
-            You MUST return only a valid JSON array in the following format:  
-            \`\`\`json
-            [
-              {{ "seq": "0006", "text": "번역된 텍스트" }},
-              {{ "seq": "0008", "text": "" }},
-              {{ "seq": "0009", "text": "<tag>번역</tag>" }}
-            ]
-            \`\`\`
-        `,
-        inputVariables: ["textContent"]
+        template: promptTemplateStr,
+        inputVariables: ["textContent"],
     });
 
     const formattedPrompt = await prompt.format({
@@ -78,28 +50,66 @@ async function translateTextContent(textContent) {
 
 }
 
-export async function translateSGMLFile(inputFilePath) {
+/**
+ * Translates the content of an SGML file.
+ *
+ * @param {string} inputFilePath - The path to the input SGML file.
+ * @param {string} [mode="test"] - The mode of operation, either "test" or "real".
+ *                                - "test": Translated file will be saved in the "translated" directory.
+ *                                - "real": Translated file will be saved in the same directory with "_translated" suffix.
+ * @returns {Promise<void>} - A promise that resolves when the translation is complete.
+ * @throws {Error} - Throws an error if an invalid mode is provided or if any other error occurs during the process.
+ */
+export async function translateSGMLFile(inputFilePath, mode = "test") {
     try {
         const parsedLines = parseSGMLLines(inputFilePath);
-        // console.log("=== before translation ===");
+        console.log("=== before translation ===");
         // parsedLines.forEach((entry) => {
-        //     const entryType = entry.type === "contents" ? "C" : "T"; // C = Contents, T = Tag
+        //     let entryType;
+        //     if (entry.type === "contents") {
+        //         entryType = "C"; 
+        //     } else if (entry.type === "tag") {
+        //         entryType = "T";
+        //     } else if (entry.type === "example") {
+        //         entryType = "E";
+        //     } else {
+        //         entryType = "?"; 
+        //     }
+        
         //     console.log(`${entry.seq.toString().padStart(4, '0')} (${entryType}): ${entry.indent}${entry.data}`);
         // });
         const textsToTranslate = extractContentForTranslation(parsedLines);
-        const translatedTexts = await translateTextContent(textsToTranslate);
+        const translatedTexts = await translateTextContent(textsToTranslate, inputFilePath);
         const translatedLines = applyTranslations(parsedLines, translatedTexts);
-
         // console.log("=== after translation ===");
         // translatedLines.forEach((entry) => {
-        //     const entryType = entry.type === "contents" ? "C" : "T";
+        //     let entryType;
+        //     if (entry.type === "contents") {
+        //         entryType = "C"; 
+        //     } else if (entry.type === "tag") {
+        //         entryType = "T";
+        //     } else if (entry.type === "example") {
+        //         entryType = "E";
+        //     } else {
+        //         entryType = "?"; 
+        //     }
+        
         //     console.log(`${entry.seq.toString().padStart(4, '0')} (${entryType}): ${entry.indent}${entry.data}`);
         // });
+        let outputFilePath;
+        if (mode === "test") {
+            const outputDir = "translated";
+            if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+            outputFilePath = path.join(outputDir, path.basename(inputFilePath));
+        } else if (mode === "real") {
+            const dirName = path.dirname(inputFilePath);
+            const baseName = path.basename(inputFilePath, path.extname(inputFilePath));
+            const ext = path.extname(inputFilePath);
+            outputFilePath = path.join(dirName, `${baseName}_translated${ext}`);
+        } else {
+            throw new Error("Invalid mode. Use 'test' or 'real'.");
+        }
 
-        const outputDir = "translated";
-        if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-
-        const outputFilePath = path.join(outputDir, path.basename(inputFilePath));
         rebuildSGML(translatedLines, outputFilePath);
 
     } catch (error) {

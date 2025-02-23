@@ -137,4 +137,6 @@ dist
 
 # data
 /data
+/test_data
 /translated
+/docs
