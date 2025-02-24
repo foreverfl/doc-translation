@@ -16,8 +16,6 @@ const openai = new ChatOpenAI({
 
 export async function translateWords(wordsObject) {
 
-    console.log("📌 wordsObject (입력):", wordsObject);
-
     if (!wordsObject || !wordsObject.english || wordsObject.english.length === 0) {
         console.log("⚠️ No words to translate.");
         return { english: [], korean: [], japanese: [] };
@@ -40,7 +38,7 @@ export async function translateWords(wordsObject) {
         // ✅ 3. Call OpenAI API
         const response = await openai.invoke(formattedPrompt);
 
-        console.log("🔍 Raw OpenAI Response:\n", response.content);
+        // console.log("🔍 Raw OpenAI Response:\n", response.content);
 
         let translatedText = response.content.trim();
 

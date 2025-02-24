@@ -33,7 +33,7 @@ async function insertWordstoDatabase(inputFilePath, tableName = "translation_ter
     // 4. Extract frequently used words
     let extractedWords = extractFrequentNouns(content);
 
-    if(extractedWords.length === 0) {
+    if (extractedWords.length === 0) {
         console.log("⚠️ No words to extract. Continuing to the next step.");
         return true;
     }
@@ -55,8 +55,6 @@ async function insertWordstoDatabase(inputFilePath, tableName = "translation_ter
         return;
     }
 
-    console.log("✅ Terms translation successful:\n" + JSON.stringify(translatedWords, null, 2));
-
     // 7. Insert the words to the database
     await inputWordsWithTraining(translatedWords, tableName);
 
@@ -76,7 +74,7 @@ async function insertWordstoDatabase(inputFilePath, tableName = "translation_ter
 export async function translateTextContent(textContent, filePath) {
     console.log(`📢 OpenAI translation request is started: `);
     const spinner = ora('Sending translation request to OpenAI...').start();
-    
+
     const promptTemplateStr = loadPromptByFileType(filePath);
 
     const prompt = new PromptTemplate({
@@ -88,15 +86,6 @@ export async function translateTextContent(textContent, filePath) {
         textContent: JSON.stringify(textContent, null, 2)
     });
 
-    // predict cost
-    const tokens = await countTokens(formattedPrompt);
-    console.log(`🔹 Token count: ${tokens}`)
-    const pricing = {
-        "gpt-4o-mini": { input: 0.15, cached_input: 0.075, output: 0.60 }
-    };
-    const inputCost = (tokens / 1_000_000) * pricing["gpt-4o-mini"].input; 
-    console.log(`🔹 Input cost: $${inputCost.toFixed(2)}`);
-
     const startTime = Date.now();
     const response = await openai.invoke(formattedPrompt);
     const endTime = Date.now();
@@ -105,8 +94,8 @@ export async function translateTextContent(textContent, filePath) {
 
     let translatedText = response.content.trim();
     translatedText = removeCodeBlocks(translatedText);
-    console.log("=== GPT Response ===")
-    console.log("🔹 Raw OpenAI Response:\n", translatedText);
+
+    // console.log("🔹 Raw OpenAI Response:\n", translatedText);
 
     try {
         const parsedText = JSON.parse(translatedText);
@@ -176,8 +165,18 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
 
         const textsToTranslate = extractContentForTranslation(parsedLines);
 
+        // predict cost
+        const tokens = await countTokens(textsToTranslate);
+        console.log(`🔹 Token count: ${tokens}`)
+        const pricing = {
+            "gpt-4o-mini": { input: 0.15, cached_input: 0.075, output: 0.60 }
+        };
+        const inputCost = (tokens / 1_000_000) * pricing["gpt-4o-mini"].input;
+        const totalCost = inputCost * 2;  // input + output
+        console.log(`🔹 Input cost: $${totalCost.toFixed(5)}`);
+
         // Split the texts into chunks to avoid exceeding the token limit
-        const CHUNK_SIZE = 500; 
+        const CHUNK_SIZE = 500;
         const textChunks = chunkArray(textsToTranslate, CHUNK_SIZE);
         let translatedTexts = [];
 
@@ -187,7 +186,7 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
             translatedTexts = translatedTexts.concat(translatedChunk);
         }
         console.log(`✅ Translation completed! Total: ${translatedTexts.length} entries`);
-        
+
         const translatedLines = applyTranslations(parsedLines, translatedTexts);
         // console.log("=== after translation ===");
         // translatedLines.forEach(entry => logEntry(entry));
