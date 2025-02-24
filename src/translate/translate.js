@@ -73,7 +73,7 @@ async function insertWordstoDatabase(inputFilePath, tableName = "translation_ter
  * @returns {Promise<Object>} - A promise that resolves to the translated text content as a JSON object.
  * @throws {Error} - Throws an error if the response from OpenAI is not valid JSON.
  */
-async function translateTextContent(textContent, filePath) {
+export async function translateTextContent(textContent, filePath) {
     console.log(`📢 OpenAI translation request is started: `);
     const spinner = ora('Sending translation request to OpenAI...').start();
     
@@ -144,6 +144,14 @@ function logEntry(entry) {
     console.log(`${entry.seq.toString().padStart(4, '0')} (${entryType}): ${entry.indent}${entry.data}`);
 }
 
+function chunkArray(array, chunkSize) {
+    let results = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+        results.push(array.slice(i, i + chunkSize));
+    }
+    return results;
+}
+
 /**
  * Translates the content of an SGML file.
  *
@@ -167,7 +175,19 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
         // parsedLines.forEach(entry => logEntry(entry));
 
         const textsToTranslate = extractContentForTranslation(parsedLines);
-        const translatedTexts = await translateTextContent(textsToTranslate, inputFilePath);
+
+        // Split the texts into chunks to avoid exceeding the token limit
+        const CHUNK_SIZE = 500; 
+        const textChunks = chunkArray(textsToTranslate, CHUNK_SIZE);
+        let translatedTexts = [];
+
+        for (const chunk of textChunks) {
+            console.log(`🔄 Translating chunk of ${chunk.length} entries...`);
+            const translatedChunk = await translateTextContent(chunk, inputFilePath);
+            translatedTexts = translatedTexts.concat(translatedChunk);
+        }
+        console.log(`✅ Translation completed! Total: ${translatedTexts.length} entries`);
+        
         const translatedLines = applyTranslations(parsedLines, translatedTexts);
         // console.log("=== after translation ===");
         // translatedLines.forEach(entry => logEntry(entry));

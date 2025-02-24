@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { translateSGMLFile } from "./translate/translate.js"; 
+import { translateSGMLFile } from "./translate/translate.js";
+import { closeDB } from "./db/connect.js";
 
 const inputPath = process.argv[2];
 
@@ -20,4 +21,18 @@ if (path.extname(inputPath).toLowerCase() !== ".sgml") {
 }
 
 console.log(`📄 Translating SGML file: ${inputPath}`);
-translateSGMLFile(inputPath, "real");
+
+async function main() {
+    try {
+        await translateSGMLFile(inputPath, "real"); 
+        console.log("✅ Translation completed successfully.");
+    } catch (error) {
+        console.error("❌ Error during translation:", error);
+    } finally {
+        await closeDB(); 
+        console.log("🔌 DB connection closed.");
+        process.exit(0); 
+    }
+}
+
+main();
