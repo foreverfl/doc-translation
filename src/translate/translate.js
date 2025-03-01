@@ -64,50 +64,6 @@ async function insertWordstoDatabase(inputFilePath, tableName = "translation_ter
 }
 
 /**
- * Translates the given text content using OpenAI's translation service.
- *
- * @param {string} textContent - The text content to be translated.
- * @param {string} filePath - The file path to determine the prompt template.
- * @returns {Promise<Object>} - A promise that resolves to the translated text content as a JSON object.
- * @throws {Error} - Throws an error if the response from OpenAI is not valid JSON.
- */
-export async function translateTextContent(textContent, filePath) {
-    console.log(`📢 OpenAI translation request is started: `);
-    const spinner = ora('Sending translation request to OpenAI...').start();
-
-    const promptTemplateStr = loadPromptByFileType(filePath);
-
-    const prompt = new PromptTemplate({
-        template: promptTemplateStr,
-        inputVariables: ["textContent"],
-    });
-
-    const formattedPrompt = await prompt.format({
-        textContent: JSON.stringify(textContent, null, 2)
-    });
-
-    const startTime = Date.now();
-    const response = await openai.invoke(formattedPrompt);
-    const endTime = Date.now();
-
-    spinner.succeed(`✅ OpenAI Response Time: ${(endTime - startTime) / 1000} sec`);
-
-    let translatedText = response.content.trim();
-    translatedText = removeCodeBlocks(translatedText);
-
-    // console.log("🔹 Raw OpenAI Response:\n", translatedText);
-
-    try {
-        const parsedText = JSON.parse(translatedText);
-        return parsedText;
-    } catch (error) {
-        console.error("🚨 JSON Parsing failed. Response might not be valid JSON.");
-        console.log(translatedText);
-        throw error;
-    }
-}
-
-/**
  * Logs a formatted entry to the console.
  *
  * @param {Object} entry - The entry object to log.
@@ -182,7 +138,7 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
 
         for (const chunk of textChunks) {
             console.log(`🔄 Translating chunk of ${chunk.length} entries...`);
-            const translatedChunk = await translateTextContent(chunk, inputFilePath);
+            const translatedChunk = await translateSGMLTextContent(chunk, inputFilePath);
             translatedTexts = translatedTexts.concat(translatedChunk);
         }
         console.log(`✅ Translation completed! Total: ${translatedTexts.length} entries`);
@@ -216,6 +172,154 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
     } catch (error) {
         console.error("❌ Error occurred:", error);
     }
+}
+
+/**
+ * Translates the given text content using OpenAI's translation service.
+ *
+ * @param {string} textContent - The text content to be translated.
+ * @param {string} filePath - The file path to determine the prompt template.
+ * @returns {Promise<Object>} - A promise that resolves to the translated text content as a JSON object.
+ * @throws {Error} - Throws an error if the response from OpenAI is not valid JSON.
+ */
+export async function translateSGMLTextContent(textContent, filePath) {
+    console.log(`📢 OpenAI translation request is started: `);
+    const spinner = ora('Sending translation request to OpenAI...').start();
+
+    const promptTemplateStr = loadPromptByFileType(filePath);
+
+    const prompt = new PromptTemplate({
+        template: promptTemplateStr,
+        inputVariables: ["textContent"],
+    });
+
+    const formattedPrompt = await prompt.format({
+        textContent: JSON.stringify(textContent, null, 2)
+    });
+
+    const startTime = Date.now();
+    const response = await openai.invoke(formattedPrompt);
+    const endTime = Date.now();
+
+    spinner.succeed(`✅ OpenAI Response Time: ${(endTime - startTime) / 1000} sec`);
+
+    let translatedText = response.content.trim();
+    translatedText = removeCodeBlocks(translatedText);
+
+    // console.log("🔹 Raw OpenAI Response:\n", translatedText);
+
+    try {
+        const parsedText = JSON.parse(translatedText);
+        return parsedText;
+    } catch (error) {
+        console.error("🚨 JSON Parsing failed. Response might not be valid JSON.");
+        console.log(translatedText);
+        throw error;
+    }
+}
+
+export async function translateMarkdownFile(inputFilePath, mode = "test") {
+    try {
+        const insertSuccess = await insertWordstoDatabase(inputFilePath);
+        if (!insertSuccess) {
+            console.error("❌ insertWordstoDatabase failed. Aborting translation.");
+            process.exit(1);
+        }
+
+        const markdownContent = fs.readFileSync(inputFilePath, "utf-8");
+
+        // predict cost
+        const tokens = await countTokens(markdownContent);
+        console.log(`🔹 Token count: ${tokens}`)
+        const pricing = {
+            "gpt-4o-mini": { input: 0.15, cached_input: 0.075, output: 0.60 }
+        };
+        const inputCost = (tokens / 1_000_000) * pricing["gpt-4o-mini"].input;
+        const totalCost = inputCost * 2;  // input + output
+        console.log(`🔹 Input cost: $${totalCost.toFixed(5)}`);
+
+        let translatedTexts = await translateMarkdownTextContent(markdownContent, inputFilePath);
+
+        let outputFilePath;
+        if (mode === "test") {
+            const outputDir = "translated";
+            if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+            outputFilePath = path.join(outputDir, path.basename(inputFilePath));
+        } else if (mode === "real") {
+            const dirName = path.dirname(inputFilePath);
+            const baseName = path.basename(inputFilePath, path.extname(inputFilePath));
+            const ext = path.extname(inputFilePath);
+
+            // Rename the original file to prevent overwriting
+            const originalFilePath = path.join(dirName, `${baseName}_original${ext}`);
+            fs.renameSync(inputFilePath, originalFilePath);
+
+            // Substitute the original file with the translated content
+            outputFilePath = path.join(dirName, `${baseName}${ext}`);
+        } else {
+            throw new Error("Invalid mode. Use 'test' or 'real'.");
+        }
+
+        fs.writeFileSync(outputFilePath, translatedTexts, "utf-8");
+        console.log(`✅ Translated Markdown saved: ${outputFilePath}`);
+
+    } catch (error) {
+        console.error("❌ Error occurred:", error);
+    }
+}
+
+export async function translateMarkdownTextContent(textContent, filePath) {
+    textContent = preprocessMarkdownHeaders(textContent);
+
+    console.log(`📢 OpenAI translation request is started: `);
+    const spinner = ora('Sending translation request to OpenAI...').start();
+
+    const promptTemplateStr = loadPromptByFileType(filePath);
+
+    const prompt = new PromptTemplate({
+        template: promptTemplateStr,
+        inputVariables: ["textContent"],
+    });
+
+    const formattedPrompt = await prompt.format({
+        textContent: textContent.trim() 
+    });
+
+    const startTime = Date.now();
+    const response = await openai.invoke(formattedPrompt);
+    const endTime = Date.now();
+
+    spinner.succeed(`✅ OpenAI Response Time: ${(endTime - startTime) / 1000} sec`);
+
+    let translatedText = response.content.trim();
+    translatedText = removeCodeBlocks(translatedText);
+
+    console.log("🔹 Raw OpenAI Response:\n", translatedText);
+
+    return translatedText;
+}
+
+export function preprocessMarkdownHeaders(markdownContent) {
+    return markdownContent
+        .split("\n")
+        .map(line => {
+            const headingMatch = line.match(/^(#{1,6})\s+(.+)/); 
+            if (headingMatch) {
+                const level = headingMatch[1];
+                const title = headingMatch[2].trim(); 
+                if (title.includes("{#")) return line; 
+
+                const id = title
+                    .replace(/[^\w\s-]/g, "") 
+                    .trim()
+                    .replace(/\s+/g, "-")
+                    .toLowerCase();
+
+                return `${level} ${title} {#${id}}`;
+            }
+            return line;
+        })
+        .join("\n");
 }
 
 /**

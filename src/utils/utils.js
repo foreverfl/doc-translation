@@ -14,10 +14,9 @@ export function loadPromptByFileType(filePath) {
     const extToPrompt = {
         ".sgml": "prompts/sgml.txt",
         ".md": "prompts/markdown.txt",
-        ".markdown": "prompts/markdown.txt",
+        ".mdx": "prompts/markdown.txt",
         ".adoc": "prompts/asciidoc.txt",
         ".asciidoc": "prompts/asciidoc.txt",
-        ".mdx": "prompts/markdown-docusaurus.txt",
     };
 
     const fileExt = path.extname(filePath).toLowerCase();

@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { translateSGMLFile } from "./translate/translate.js";
+import { translateSGMLFile, translateMarkdownFile } from "./translate/translate.js";
 import { closeDB } from "./db/connect.js";
 
 const inputPath = process.argv[2];
@@ -15,8 +15,10 @@ if (!fs.existsSync(inputPath) || !fs.lstatSync(inputPath).isFile()) {
     process.exit(1);
 }
 
-if (path.extname(inputPath).toLowerCase() !== ".sgml") {
-    console.error("❌ Only .sgml files are supported.");
+const ext = path.extname(inputPath).toLowerCase();
+
+if (ext !== ".sgml" && ext !== ".md") {
+    console.error("❌ Only .sgml and .md files are supported.");
     process.exit(1);
 }
 
@@ -24,14 +26,18 @@ console.log(`📄 Translating SGML file: ${inputPath}`);
 
 async function main() {
     try {
-        await translateSGMLFile(inputPath, "real"); 
+        if (ext === ".sgml") {
+            await translateSGMLFile(inputPath, "real");
+        } else if (ext === ".md") {
+            await translateMarkdownFile(inputPath, "real");
+        }
         console.log("✅ Translation completed successfully.");
     } catch (error) {
         console.error("❌ Error during translation:", error);
     } finally {
-        await closeDB(); 
+        await closeDB();
         console.log("🔌 DB connection closed.");
-        process.exit(0); 
+        process.exit(0);
     }
 }
 
