@@ -5,7 +5,6 @@ import fs from "fs";
 import ora from "ora";
 import path from "path";
 import { checkExistingWords } from "../db/checkExistingWords.js";
-import { closeDB } from "../db/connect.js";
 import { createTable } from "../db/createTable.js";
 import { inputWordsWithTraining } from "../db/inputWords.js";
 import { countTokens } from "../predictCost.js";
@@ -97,7 +96,7 @@ function shouldSkipTranslation(text, threshold = 10) {
 
     if (totalChars === 0) {
         console.log("⚠️ Empty text, skipping translation.");
-        return true; 
+        return true;
     }
 
     const koreanChars = (cleanText.match(/[가-힣]/g) || []).length;
@@ -236,9 +235,7 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
 
     } catch (error) {
         console.error("❌ Error occurred:", error);
-    } finally {
-        await closeDB();
-    }
+    } 
 }
 
 /**
@@ -290,13 +287,12 @@ export async function translateMarkdownFile(inputFilePath, mode = "test") {
         const insertSuccess = await insertWordstoDatabase(inputFilePath);
         if (!insertSuccess) {
             console.error("❌ insertWordstoDatabase failed. Aborting translation.");
-            await closeDB();
             return;
         }
 
         const markdownContent = fs.readFileSync(inputFilePath, "utf-8");
 
-        if(shouldSkipTranslation(markdownContent)) {
+        if (shouldSkipTranslation(markdownContent)) {
             console.log("⚠️ Skipping translation.");
             return;
         }
@@ -338,9 +334,7 @@ export async function translateMarkdownFile(inputFilePath, mode = "test") {
 
     } catch (error) {
         console.error("❌ Error occurred:", error);
-    } finally {
-        await closeDB();
-    }
+    } 
 }
 
 export async function translateMarkdownTextContent(textContent, filePath) {
@@ -375,6 +369,17 @@ export async function translateMarkdownTextContent(textContent, filePath) {
     return translatedText;
 }
 
+/**
+ * Preprocesses markdown headers by adding unique IDs to them if they don't already have one.
+ *
+ * This function takes markdown content as input, splits it into lines, and processes each line to
+ * identify markdown headers (lines starting with 1 to 6 hash symbols followed by a space and some text).
+ * If a header does not already contain an ID (in the format `{#id}`), it generates a unique ID based on
+ * the header text and appends it to the header.
+ *
+ * @param {string} markdownContent - The markdown content to preprocess.
+ * @returns {string} - The preprocessed markdown content with IDs added to headers.
+ */
 export function preprocessMarkdownHeaders(markdownContent) {
     return markdownContent
         .split("\n")
@@ -421,11 +426,20 @@ export async function translateFolder(folderPath, mode = "test", allowedExtensio
                 await processDirectory(filePath);  // Recurse into subdirectory
             } else {
                 const fileExt = path.extname(file).toLowerCase();
-                if (allowedExtensions.includes(fileExt)) {
-                    console.log(`📄 Translating file: ${filePath}`);
-                    await translateSGMLFile(filePath, mode);  // Use the updated translateSGMLFile function
-                } else {
+
+                if (!allowedExtensions.includes(fileExt)) {
                     console.log(`⚠️ Skipping unsupported file: ${filePath}`);
+                    continue;
+                }
+
+                console.log(`📄 Translating file: ${filePath}`);
+
+                if (fileExt === ".sgml") {
+                    await translateSGMLFile(filePath, mode);
+                } else if ([".md", ".markdown", ".adoc", ".asciidoc", ".mdx"].includes(fileExt)) {
+                    await translateMarkdownFile(filePath, mode);
+                } else {
+                    console.log(`❌ Unhandled file type: ${fileExt}, skipping...`);
                 }
             }
         }

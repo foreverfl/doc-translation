@@ -7,8 +7,8 @@ export const pool = new Pool({
     host: "localhost",
     port: 5432,
     database: "translation_db",
-    max: 10, 
-    idleTimeoutMillis: 30000, 
+    max: 30, 
+    idleTimeoutMillis: 10000, 
     connectionTimeoutMillis: 2000,
 });
 
