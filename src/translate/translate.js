@@ -5,6 +5,7 @@ import fs from "fs";
 import ora from "ora";
 import path from "path";
 import { checkExistingWords } from "../db/checkExistingWords.js";
+import { closeDB } from "../db/connect.js";
 import { createTable } from "../db/createTable.js";
 import { inputWordsWithTraining } from "../db/inputWords.js";
 import { countTokens } from "../predictCost.js";
@@ -64,6 +65,65 @@ async function insertWordstoDatabase(inputFilePath, tableName = "translation_ter
 }
 
 /**
+ * Removes Markdown syntax, HTML tags, and special characters from text
+ * before analyzing the proportion of haracters.
+ *
+ * @param {string} text - The text content to clean.
+ * @returns {string} - Cleaned text.
+ */
+function filterContentForAnalysis(text) {
+    return text
+        .replace(/<!--[\s\S]*?-->/g, "") // Remove HTML comments
+        .replace(/```[\s\S]*?```/g, "") // Remove code blocks
+        .replace(/`([^`]+)`/g, "$1") // Remove inline code formatting
+        .replace(/!\[[^\]]*\]\([^\)]+\)/g, "") // Remove image links
+        .replace(/\[[^\]]*\]\([^\)]+\)/g, "") // Remove regular links
+        .replace(/[#>*_\-`]/g, "") // Remove Markdown symbols
+        .replace(/\|/g, "") // Remove table delimiters
+        .replace(/\n{2,}/g, "\n"); // Reduce multiple newlines to a single newline
+}
+
+/**
+ * Checks if a given text has a high proportion of Korean or Japanese characters.
+ *
+ * @param {string} text - The text content to analyze.
+ * @param {number} threshold - The percentage of characters required to skip translation.
+ * @returns {boolean} - Returns true if the Korean or Japanese proportion is higher than the threshold.
+ */
+function shouldSkipTranslation(text, threshold = 10) {
+    const cleanText = filterContentForAnalysis(text);
+
+    const totalChars = cleanText.length;
+
+    if (totalChars === 0) {
+        console.log("⚠️ Empty text, skipping translation.");
+        return true; 
+    }
+
+    const koreanChars = (cleanText.match(/[가-힣]/g) || []).length;
+    const japaneseChars = (cleanText.match(/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/gu) || []).length;
+
+    const koreanPercentage = (koreanChars / totalChars) * 100;
+    const japanesePercentage = (japaneseChars / totalChars) * 100;
+
+    console.log(`📊 Total Clean Characters: ${totalChars}`);
+    console.log(`🔹 Korean: ${koreanChars} chars (${koreanPercentage.toFixed(2)}%)`);
+    console.log(`🔹 Japanese: ${japaneseChars} chars (${japanesePercentage.toFixed(2)}%)`);
+    console.log(`⚖️ Threshold: ${threshold}%`);
+
+    if (koreanPercentage >= threshold) {
+        console.log(`⚠️ Skipping translation: Korean content is too high (${koreanPercentage.toFixed(2)}%)`);
+        return true;
+    } else if (japanesePercentage >= threshold) {
+        console.log(`⚠️ Skipping translation: Japanese content is too high (${japanesePercentage.toFixed(2)}%)`);
+        return true;
+    }
+
+    console.log("✅ Proceeding with translation.");
+    return false;
+}
+
+/**
  * Logs a formatted entry to the console.
  *
  * @param {Object} entry - The entry object to log.
@@ -112,14 +172,19 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
         const insertSuccess = await insertWordstoDatabase(inputFilePath);
         if (!insertSuccess) {
             console.error("❌ insertWordstoDatabase failed. Aborting translation.");
-            process.exit(1);
+            return;
         }
-
         const parsedLines = parseSGMLLines(inputFilePath);
         // console.log("=== before translation ===");
         // parsedLines.forEach(entry => logEntry(entry));
 
         const textsToTranslate = extractContentForTranslation(parsedLines);
+
+        const combinedText = textsToTranslate.join(" ");
+        if (shouldSkipTranslation(combinedText)) {
+            console.log(`⚠️ Skipping translation for ${inputFilePath}. Too much Korean or Japanese content.`);
+            return;
+        }
 
         // predict cost
         const tokens = await countTokens(textsToTranslate);
@@ -171,6 +236,8 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
 
     } catch (error) {
         console.error("❌ Error occurred:", error);
+    } finally {
+        await closeDB();
     }
 }
 
@@ -223,10 +290,16 @@ export async function translateMarkdownFile(inputFilePath, mode = "test") {
         const insertSuccess = await insertWordstoDatabase(inputFilePath);
         if (!insertSuccess) {
             console.error("❌ insertWordstoDatabase failed. Aborting translation.");
-            process.exit(1);
+            await closeDB();
+            return;
         }
 
         const markdownContent = fs.readFileSync(inputFilePath, "utf-8");
+
+        if(shouldSkipTranslation(markdownContent)) {
+            console.log("⚠️ Skipping translation.");
+            return;
+        }
 
         // predict cost
         const tokens = await countTokens(markdownContent);
@@ -265,10 +338,13 @@ export async function translateMarkdownFile(inputFilePath, mode = "test") {
 
     } catch (error) {
         console.error("❌ Error occurred:", error);
+    } finally {
+        await closeDB();
     }
 }
 
 export async function translateMarkdownTextContent(textContent, filePath) {
+
     textContent = preprocessMarkdownHeaders(textContent);
 
     console.log(`📢 OpenAI translation request is started: `);
@@ -282,7 +358,7 @@ export async function translateMarkdownTextContent(textContent, filePath) {
     });
 
     const formattedPrompt = await prompt.format({
-        textContent: textContent.trim() 
+        textContent: textContent.trim()
     });
 
     const startTime = Date.now();
@@ -294,7 +370,7 @@ export async function translateMarkdownTextContent(textContent, filePath) {
     let translatedText = response.content.trim();
     translatedText = removeCodeBlocks(translatedText);
 
-    console.log("🔹 Raw OpenAI Response:\n", translatedText);
+    // console.log("🔹 Raw OpenAI Response:\n", translatedText);
 
     return translatedText;
 }
@@ -303,14 +379,14 @@ export function preprocessMarkdownHeaders(markdownContent) {
     return markdownContent
         .split("\n")
         .map(line => {
-            const headingMatch = line.match(/^(#{1,6})\s+(.+)/); 
+            const headingMatch = line.match(/^(#{1,6})\s+(.+)/);
             if (headingMatch) {
                 const level = headingMatch[1];
-                const title = headingMatch[2].trim(); 
-                if (title.includes("{#")) return line; 
+                const title = headingMatch[2].trim();
+                if (title.includes("{#")) return line;
 
                 const id = title
-                    .replace(/[^\w\s-]/g, "") 
+                    .replace(/[^\w\s-]/g, "")
                     .trim()
                     .replace(/\s+/g, "-")
                     .toLowerCase();
