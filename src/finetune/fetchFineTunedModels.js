@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import OpenAI from "openai";
+import { logger } from "../utils/logger.js";
 
 dotenv.config();
 
@@ -12,16 +13,16 @@ async function fetchFineTunedModels() {
         const list = await openai.fineTuning.jobs.list();
 
         if (!list.data || list.data.length === 0) {
-            console.log("⚠️ No fine-tuned models found.");
+            logger.info("⚠️ No fine-tuned models found.");
             return;
         }
 
-        console.log("✅ Fetched fine-tuned models:");
+        logger.info("✅ Fetched fine-tuned models:");
         for (const fineTune of list.data) {
-            console.log(`🆔 ID: ${fineTune.id} | Status: ${fineTune.status} | Created: ${new Date(fineTune.created_at * 1000).toISOString()}`);
+            logger.info(`🆔 ID: ${fineTune.id} | Status: ${fineTune.status} | Created: ${new Date(fineTune.created_at * 1000).toISOString()}`);
         }
     } catch (error) {
-        console.error("❌ Error fetching fine-tuned models:", error);
+        logger.error("❌ Error fetching fine-tuned models:", error);
     }
 }
 

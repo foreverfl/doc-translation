@@ -1,4 +1,5 @@
 import pkg from "pg";
+import { logger } from "../utils/logger.js";
 const { Pool } = pkg;
 
 export const pool = new Pool({
@@ -7,25 +8,25 @@ export const pool = new Pool({
     host: "localhost",
     port: 5432,
     database: "translation_db",
-    max: 30, 
-    idleTimeoutMillis: 10000, 
+    max: 30,
+    idleTimeoutMillis: 10000,
     connectionTimeoutMillis: 2000,
 });
 
-let isPoolClosed = false; 
+let isPoolClosed = false;
 
 export async function connectDB() {
     if (isPoolClosed) {
-        console.warn("⚠️ Connection pool is closed. Reinitializing...");
+        logger.warn("⚠️ Connection pool is closed. Reinitializing...");
         return;
     }
 
     try {
         const client = await pool.connect();
-        console.log("✅ Connected to PostgreSQL");
-        client.release(); 
+        logger.info("✅ Connected to PostgreSQL");
+        client.release();
     } catch (error) {
-        console.error("🚨 Error connecting to PostgreSQL:", error);
+        logger.error("🚨 Error connecting to PostgreSQL:", error);
     }
 }
 
@@ -38,17 +39,17 @@ export async function queryDB(query, params = []) {
         const result = await pool.query(query, params);
         return result.rows;
     } catch (error) {
-        console.error("🚨 Query Error:", error);
+        logger.error("🚨 Query Error:", error);
         throw error;
-    } 
+    }
 }
 
 export async function closeDB() {
     if (!isPoolClosed) {
         await pool.end();
         isPoolClosed = true;
-        console.log("🔌 PostgreSQL connection pool closed.");
+        logger.info("🔌 PostgreSQL connection pool closed.");
     } else {
-        console.log("⚠️ Connection pool already closed.");
+        logger.info("⚠️ Connection pool already closed.");
     }
 }

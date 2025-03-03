@@ -1,4 +1,5 @@
 import { queryDB } from "./connect.js";
+import { logger } from "../utils/logger.js";
 
 export async function checkExistingWords(words) {
     if (!words.length) return [];
@@ -9,9 +10,9 @@ export async function checkExistingWords(words) {
     try {
         const result = await queryDB(query, words);
         const existingWords = new Set(result.map(row => row.english));
-        return words.filter(word => !existingWords.has(word)); 
+        return words.filter(word => !existingWords.has(word));
     } catch (error) {
-        console.error("🚨 Error checking existing words:", error);
-        return words; 
+        logger.error("🚨 Error checking existing words:", error);
+        return words;
     }
 }

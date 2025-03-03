@@ -1,4 +1,5 @@
 import { queryDB } from "./connect.js";
+import { logger } from "../utils/logger.js";
 
 export async function getUntrainedWordsForFineTuning(limit = 100) {
     const query = `SELECT english, korean, japanese FROM translation_terms WHERE is_trained = FALSE LIMIT $1`;
@@ -10,7 +11,7 @@ export async function getUntrainedWordsForFineTuning(limit = 100) {
             japanese: result.map(row => row.japanese)
         };
     } catch (error) {
-        console.error("🚨 Error fetching untrained words for fine-tuning:", error);
+        logger.error("🚨 Error fetching untrained words for fine-tuning:", error);
         return { english: [], korean: [], japanese: [] };
     }
 }

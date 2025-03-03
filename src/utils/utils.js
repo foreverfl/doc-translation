@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import { logger } from "../utils/logger.js";
 
 dotenv.config();
 
@@ -22,12 +23,12 @@ export function loadPromptByFileType(filePath) {
     const fileExt = path.extname(filePath).toLowerCase();
     const promptFile = extToPrompt[fileExt] || "prompts/default.txt";
 
-    console.log(`📄 Detected file type: ${fileExt || "unknown"}, using prompt: ${promptFile}`);
+    logger.info(`📄 Detected file type: ${fileExt || "unknown"}, using prompt: ${promptFile}`);
 
     try {
         return fs.readFileSync(promptFile, "utf-8");
     } catch (error) {
-        console.error(`❌ Failed to load the prompt file: ${promptFile}`);
+        logger.error(`❌ Failed to load the prompt file: ${promptFile}`);
         process.exit(1);
     }
 }
@@ -41,7 +42,7 @@ export function loadPromptByFileType(filePath) {
  */
 export function readFile(inputFilePath) {
     if (!fs.existsSync(inputFilePath)) {
-        console.error("❌ The specified file does not exist.");
+        logger.error("❌ The specified file does not exist.");
         process.exit(1);
     }
     return fs.readFileSync(inputFilePath, "utf-8");
@@ -55,7 +56,7 @@ export function readFile(inputFilePath) {
  */
 export function saveFile(outputFilePath, content) {
     fs.writeFileSync(outputFilePath, content, "utf-8");
-    console.log(`✅ Translation completed: ${outputFilePath}`);
+    logger.info(`✅ Translation completed: ${outputFilePath}`);
 }
 
 /**
@@ -82,13 +83,13 @@ export function removeCodeBlocks(text) {
  */
 function getTagType(trimmedLine, inExampleBlock) {
     if (trimmedLine.startsWith("<programlisting>")) {
-        return { type: "example", inExampleBlock: true }; 
+        return { type: "example", inExampleBlock: true };
     } else if (trimmedLine.startsWith("</programlisting>")) {
         return { type: "example", inExampleBlock: false };
     } else if (trimmedLine.startsWith("<title>") || trimmedLine.startsWith("<primary>")) {
-        return { type: "title" }; 
+        return { type: "title" };
     } else if (trimmedLine.startsWith("<") && trimmedLine.endsWith(">")) {
-        return { type: "tag" };  
+        return { type: "tag" };
     } else {
         return { type: "contents" };
     }
@@ -108,14 +109,14 @@ export function parseSGMLLines(filePath) {
     const fileContent = fs.readFileSync(filePath, "utf-8");
     const lines = fileContent.split("\n");
 
-    let inExampleBlock = false; 
+    let inExampleBlock = false;
 
     let parsedLines = lines.map((line, index) => {
         let trimmedLine = line.trim();
         let leadingSpaces = line.match(/^(\s*)/)[0];
 
         const { type, inExampleBlock: newInExampleBlock } = getTagType(trimmedLine, inExampleBlock);
-        inExampleBlock = newInExampleBlock; 
+        inExampleBlock = newInExampleBlock;
 
         return { seq: index, type, data: line, indent: leadingSpaces };
     });
@@ -134,9 +135,9 @@ export function parseSGMLLines(filePath) {
  */
 export function extractContentForTranslation(parsedLines) {
     return parsedLines
-        .filter(entry => entry.type === "contents" || entry.type === "title")  
+        .filter(entry => entry.type === "contents" || entry.type === "title")
         .map(entry => ({
-            seq: String(entry.seq + 1).padStart(4, '0'), 
+            seq: String(entry.seq + 1).padStart(4, '0'),
             text: entry.data.trim()
         }));
 }
@@ -160,19 +161,19 @@ export function extractContentForTranslation(parsedLines) {
  */
 export function applyTranslations(beforeLines, translatedLines) {
     const translatedMap = new Map();
-    
+
     translatedLines.forEach(({ seq, text }) => {
-        translatedMap.set(String(Number(seq)).padStart(4, '0'), text); 
+        translatedMap.set(String(Number(seq)).padStart(4, '0'), text);
     });
 
     return beforeLines.map(entry => {
-        if (entry.type === "contents" || entry.type === "title") {  
+        if (entry.type === "contents" || entry.type === "title") {
             const seqStr = String(entry.seq + 1).padStart(4, '0');  // Adjusted seq value by adding +1 to ensure consistency
             const translatedText = translatedMap.has(seqStr) ? translatedMap.get(seqStr) : entry.data;
-            // console.log(`🔍 Mapping seq=${seqStr}: Original="${entry.data}" → Translated="${translatedText}"`);
+            // logger.info(`🔍 Mapping seq=${seqStr}: Original="${entry.data}" → Translated="${translatedText}"`);
             return { ...entry, data: `${entry.indent}${translatedText}` };
         }
-        return entry; 
+        return entry;
     });
 }
 
@@ -189,9 +190,9 @@ export function applyTranslations(beforeLines, translatedLines) {
  * @returns {void}
  */
 export function rebuildSGML(parsedLines, outputPath) {
-    console.log("🚀 Rebuilding SGML with translated data...");
+    logger.info("🚀 Rebuilding SGML with translated data...");
     const reconstructedSGML = parsedLines.map(entry => entry.data).join("\n");
 
     fs.writeFileSync(outputPath, reconstructedSGML, "utf-8");
-    console.log(`✅ Translated SGML is saved : ${outputPath}`);
+    logger.info(`✅ Translated SGML is saved : ${outputPath}`);
 }

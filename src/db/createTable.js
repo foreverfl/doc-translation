@@ -1,8 +1,9 @@
 import { queryDB } from "./connect.js";
+import { logger } from "../utils/logger.js";
 
 export async function createTable(tableName) {
     if (!tableName) {
-        console.error("🚨 Table name is required!");
+        logger.error("🚨 Table name is required!");
         return;
     }
 
@@ -20,8 +21,8 @@ export async function createTable(tableName) {
 
     try {
         await queryDB(query);
-        console.log(`✅ Table "${tableName}" created successfully.`);
+        logger.info(`✅ Table "${tableName}" created successfully.`);
     } catch (error) {
-        console.error(`🚨 Error creating table "${tableName}":`, error);
+        logger.error(`🚨 Error creating table "${tableName}":`, error);
     }
 }

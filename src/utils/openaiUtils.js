@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import dotenv from "dotenv";
+import { logger } from "../utils/logger.js";
 
 dotenv.config();
 
@@ -12,7 +13,7 @@ export async function fetchAvailableModels() {
         const models = await openai.models.list();
         return models.data.map((model) => model.id);
     } catch (error) {
-        console.error("❌ Failed to fetch OpenAI models:", error);
+        logger.error("❌ Failed to fetch OpenAI models:", error);
         return [];
     }
 }
@@ -22,30 +23,30 @@ export async function fetchFiles() {
         const list = await openai.files.list();
 
         if (!list.data || list.data.length === 0) {
-            console.log("⚠️ No files found.");
+            logger.info("⚠️ No files found.");
             return;
         }
 
-        console.log("✅ Fetched OpenAI files:");
+        logger.info("✅ Fetched OpenAI files:");
         for (const file of list.data) {
-            console.log(`📄 File ID: ${file.id} | Name: ${file.filename} | Purpose: ${file.purpose} | Status: ${file.status}`);
+            logger.info(`📄 File ID: ${file.id} | Name: ${file.filename} | Purpose: ${file.purpose} | Status: ${file.status}`);
         }
     } catch (error) {
-        console.error("❌ Error fetching files:", error);
+        logger.error("❌ Error fetching files:", error);
     }
 }
 
 export async function deleteFile(fileId) {
     if (!fileId) {
-        console.error("❌ Please provide a file ID to delete. Usage: node test.js <file_id>");
+        logger.error("❌ Please provide a file ID to delete. Usage: node test.js <file_id>");
         process.exit(1);
     }
 
     try {
         const response = await openai.files.del(fileId);
-        console.log("✅ File deleted successfully:", response);
+        logger.info("✅ File deleted successfully:", response);
     } catch (error) {
-        console.error("❌ Failed to delete file:", error);
+        logger.error("❌ Failed to delete file:", error);
     }
 }
 

@@ -8,6 +8,7 @@ import { checkExistingWords } from "../db/checkExistingWords.js";
 import { createTable } from "../db/createTable.js";
 import { inputWordsWithTraining } from "../db/inputWords.js";
 import { countTokens } from "../predictCost.js";
+import { logger } from "../utils/logger.js";
 import { applyTranslations, extractContentForTranslation, loadPromptByFileType, parseSGMLLines, readFile, rebuildSGML, removeCodeBlocks } from "../utils/utils.js";
 import { extractFrequentNouns, filterContent, translateWords } from "./translateTerms.js";
 
@@ -34,7 +35,7 @@ async function insertWordstoDatabase(inputFilePath, tableName = "translation_ter
     let extractedWords = extractFrequentNouns(content);
 
     if (extractedWords.length === 0) {
-        console.log("⚠️ No words to extract. Continuing to the next step.");
+        logger.info("⚠️ No words to extract. Continuing to the next step.");
         return true;
     }
 
@@ -46,19 +47,19 @@ async function insertWordstoDatabase(inputFilePath, tableName = "translation_ter
     try {
         translatedWords = await translateWords({ english: extractedWords });
     } catch (error) {
-        console.error("🚨 Error during translation:", error);
+        logger.error("🚨 Error during translation:", error);
         return;
     }
 
     if (!translatedWords || !translatedWords.english || !translatedWords.korean || !translatedWords.japanese) {
-        console.error("❌ Translation failed: Invalid response format.");
+        logger.error("❌ Translation failed: Invalid response format.");
         return;
     }
 
     // 7. Insert the words to the database
     await inputWordsWithTraining(translatedWords, tableName);
 
-    console.log("✅ Words inserted to the database.");
+    logger.info("✅ Words inserted to the database.");
 
     return true;
 }
@@ -95,7 +96,7 @@ function shouldSkipTranslation(text, threshold = 10) {
     const totalChars = cleanText.length;
 
     if (totalChars === 0) {
-        console.log("⚠️ Empty text, skipping translation.");
+        logger.info("⚠️ Empty text, skipping translation.");
         return true;
     }
 
@@ -105,20 +106,20 @@ function shouldSkipTranslation(text, threshold = 10) {
     const koreanPercentage = (koreanChars / totalChars) * 100;
     const japanesePercentage = (japaneseChars / totalChars) * 100;
 
-    console.log(`📊 Total Clean Characters: ${totalChars}`);
-    console.log(`🔹 Korean: ${koreanChars} chars (${koreanPercentage.toFixed(2)}%)`);
-    console.log(`🔹 Japanese: ${japaneseChars} chars (${japanesePercentage.toFixed(2)}%)`);
-    console.log(`⚖️ Threshold: ${threshold}%`);
+    logger.info(`📊 Total Clean Characters: ${totalChars}`);
+    logger.info(`🔹 Korean: ${koreanChars} chars (${koreanPercentage.toFixed(2)}%)`);
+    logger.info(`🔹 Japanese: ${japaneseChars} chars (${japanesePercentage.toFixed(2)}%)`);
+    logger.info(`⚖️ Threshold: ${threshold}%`);
 
     if (koreanPercentage >= threshold) {
-        console.log(`⚠️ Skipping translation: Korean content is too high (${koreanPercentage.toFixed(2)}%)`);
+        logger.info(`⚠️ Skipping translation: Korean content is too high (${koreanPercentage.toFixed(2)}%)`);
         return true;
     } else if (japanesePercentage >= threshold) {
-        console.log(`⚠️ Skipping translation: Japanese content is too high (${japanesePercentage.toFixed(2)}%)`);
+        logger.info(`⚠️ Skipping translation: Japanese content is too high (${japanesePercentage.toFixed(2)}%)`);
         return true;
     }
 
-    console.log("✅ Proceeding with translation.");
+    logger.info("✅ Proceeding with translation.");
     return false;
 }
 
@@ -145,7 +146,7 @@ function logEntry(entry) {
         entryType = "?";
     }
 
-    console.log(`${entry.seq.toString().padStart(4, '0')} (${entryType}): ${entry.indent}${entry.data}`);
+    logger.info(`${entry.seq.toString().padStart(4, '0')} (${entryType}): ${entry.indent}${entry.data}`);
 }
 
 function chunkArray(array, chunkSize) {
@@ -170,30 +171,30 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
     try {
         const insertSuccess = await insertWordstoDatabase(inputFilePath);
         if (!insertSuccess) {
-            console.error("❌ insertWordstoDatabase failed. Aborting translation.");
+            logger.error("❌ insertWordstoDatabase failed. Aborting translation.");
             return;
         }
         const parsedLines = parseSGMLLines(inputFilePath);
-        // console.log("=== before translation ===");
+        // logger.info("=== before translation ===");
         // parsedLines.forEach(entry => logEntry(entry));
 
         const textsToTranslate = extractContentForTranslation(parsedLines);
 
         const combinedText = textsToTranslate.join(" ");
         if (shouldSkipTranslation(combinedText)) {
-            console.log(`⚠️ Skipping translation for ${inputFilePath}. Too much Korean or Japanese content.`);
+            logger.info(`⚠️ Skipping translation for ${inputFilePath}. Too much Korean or Japanese content.`);
             return;
         }
 
         // predict cost
         const tokens = await countTokens(textsToTranslate);
-        console.log(`🔹 Token count: ${tokens}`)
+        logger.info(`🔹 Token count: ${tokens}`)
         const pricing = {
             "gpt-4o-mini": { input: 0.15, cached_input: 0.075, output: 0.60 }
         };
         const inputCost = (tokens / 1_000_000) * pricing["gpt-4o-mini"].input;
         const totalCost = inputCost * 2;  // input + output
-        console.log(`🔹 Input cost: $${totalCost.toFixed(5)}`);
+        logger.info(`🔹 Input cost: $${totalCost.toFixed(5)}`);
 
         // Split the texts into chunks to avoid exceeding the token limit
         const CHUNK_SIZE = 500;
@@ -201,14 +202,14 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
         let translatedTexts = [];
 
         for (const chunk of textChunks) {
-            console.log(`🔄 Translating chunk of ${chunk.length} entries...`);
+            logger.info(`🔄 Translating chunk of ${chunk.length} entries...`);
             const translatedChunk = await translateSGMLTextContent(chunk, inputFilePath);
             translatedTexts = translatedTexts.concat(translatedChunk);
         }
-        console.log(`✅ Translation completed! Total: ${translatedTexts.length} entries`);
+        logger.info(`✅ Translation completed! Total: ${translatedTexts.length} entries`);
 
         const translatedLines = applyTranslations(parsedLines, translatedTexts);
-        // console.log("=== after translation ===");
+        // logger.info("=== after translation ===");
         // translatedLines.forEach(entry => logEntry(entry));
 
         let outputFilePath;
@@ -234,8 +235,8 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
         rebuildSGML(translatedLines, outputFilePath);
 
     } catch (error) {
-        console.error("❌ Error occurred:", error);
-    } 
+        logger.error("❌ Error occurred:", error);
+    }
 }
 
 /**
@@ -247,7 +248,7 @@ export async function translateSGMLFile(inputFilePath, mode = "test") {
  * @throws {Error} - Throws an error if the response from OpenAI is not valid JSON.
  */
 export async function translateSGMLTextContent(textContent, filePath) {
-    console.log(`📢 OpenAI translation request is started: `);
+    logger.info(`📢 OpenAI translation request is started: `);
     const spinner = ora('Sending translation request to OpenAI...').start();
 
     const promptTemplateStr = loadPromptByFileType(filePath);
@@ -270,14 +271,14 @@ export async function translateSGMLTextContent(textContent, filePath) {
     let translatedText = response.content.trim();
     translatedText = removeCodeBlocks(translatedText);
 
-    // console.log("🔹 Raw OpenAI Response:\n", translatedText);
+    // logger.info("🔹 Raw OpenAI Response:\n", translatedText);
 
     try {
         const parsedText = JSON.parse(translatedText);
         return parsedText;
     } catch (error) {
-        console.error("🚨 JSON Parsing failed. Response might not be valid JSON.");
-        console.log(translatedText);
+        logger.error("🚨 JSON Parsing failed. Response might not be valid JSON.");
+        logger.info(translatedText);
         throw error;
     }
 }
@@ -286,26 +287,26 @@ export async function translateMarkdownFile(inputFilePath, mode = "test") {
     try {
         const insertSuccess = await insertWordstoDatabase(inputFilePath);
         if (!insertSuccess) {
-            console.error("❌ insertWordstoDatabase failed. Aborting translation.");
+            logger.error("❌ insertWordstoDatabase failed. Aborting translation.");
             return;
         }
 
         const markdownContent = fs.readFileSync(inputFilePath, "utf-8");
 
         if (shouldSkipTranslation(markdownContent)) {
-            console.log("⚠️ Skipping translation.");
+            logger.info("⚠️ Skipping translation.");
             return;
         }
 
         // predict cost
         const tokens = await countTokens(markdownContent);
-        console.log(`🔹 Token count: ${tokens}`)
+        logger.info(`🔹 Token count: ${tokens}`)
         const pricing = {
             "gpt-4o-mini": { input: 0.15, cached_input: 0.075, output: 0.60 }
         };
         const inputCost = (tokens / 1_000_000) * pricing["gpt-4o-mini"].input;
         const totalCost = inputCost * 2;  // input + output
-        console.log(`🔹 Input cost: $${totalCost.toFixed(5)}`);
+        logger.info(`🔹 Input cost: $${totalCost.toFixed(5)}`);
 
         let translatedTexts = await translateMarkdownTextContent(markdownContent, inputFilePath);
 
@@ -330,18 +331,18 @@ export async function translateMarkdownFile(inputFilePath, mode = "test") {
         }
 
         fs.writeFileSync(outputFilePath, translatedTexts, "utf-8");
-        console.log(`✅ Translated Markdown saved: ${outputFilePath}`);
+        logger.info(`✅ Translated Markdown saved: ${outputFilePath}`);
 
     } catch (error) {
-        console.error("❌ Error occurred:", error);
-    } 
+        logger.error("❌ Error occurred:", error);
+    }
 }
 
 export async function translateMarkdownTextContent(textContent, filePath) {
 
     textContent = preprocessMarkdownHeaders(textContent);
 
-    console.log(`📢 OpenAI translation request is started: `);
+    logger.info(`📢 OpenAI translation request is started: `);
     const spinner = ora('Sending translation request to OpenAI...').start();
 
     const promptTemplateStr = loadPromptByFileType(filePath);
@@ -364,7 +365,7 @@ export async function translateMarkdownTextContent(textContent, filePath) {
     let translatedText = response.content.trim();
     translatedText = removeCodeBlocks(translatedText);
 
-    // console.log("🔹 Raw OpenAI Response:\n", translatedText);
+    // logger.info("🔹 Raw OpenAI Response:\n", translatedText);
 
     return translatedText;
 }
@@ -412,7 +413,7 @@ export function preprocessMarkdownHeaders(markdownContent) {
  * @returns {Promise<void>} - A promise that resolves when the translation is complete.
  */
 export async function translateFolder(folderPath, mode = "test", allowedExtensions = [".sgml", ".md", ".markdown", ".adoc", ".asciidoc", ".mdx"]) {
-    console.log(`🚀 Translating folder: ${folderPath} (Mode: ${mode})`);
+    logger.info(`🚀 Translating folder: ${folderPath} (Mode: ${mode})`);
 
     async function processDirectory(directory) {
         const files = fs.readdirSync(directory);
@@ -422,24 +423,24 @@ export async function translateFolder(folderPath, mode = "test", allowedExtensio
             const stat = fs.lstatSync(filePath);
 
             if (stat.isDirectory()) {
-                console.log(`📂 Entering folder: ${filePath}`);
+                logger.info(`📂 Entering folder: ${filePath}`);
                 await processDirectory(filePath);  // Recurse into subdirectory
             } else {
                 const fileExt = path.extname(file).toLowerCase();
 
                 if (!allowedExtensions.includes(fileExt)) {
-                    console.log(`⚠️ Skipping unsupported file: ${filePath}`);
+                    logger.info(`⚠️ Skipping unsupported file: ${filePath}`);
                     continue;
                 }
 
-                console.log(`📄 Translating file: ${filePath}`);
+                logger.info(`📄 Translating file: ${filePath}`);
 
                 if (fileExt === ".sgml") {
                     await translateSGMLFile(filePath, mode);
                 } else if ([".md", ".markdown", ".adoc", ".asciidoc", ".mdx"].includes(fileExt)) {
                     await translateMarkdownFile(filePath, mode);
                 } else {
-                    console.log(`❌ Unhandled file type: ${fileExt}, skipping...`);
+                    logger.info(`❌ Unhandled file type: ${fileExt}, skipping...`);
                 }
             }
         }
@@ -450,6 +451,6 @@ export async function translateFolder(folderPath, mode = "test", allowedExtensio
     const endTime = Date.now();
     const elapsedTime = ((endTime - startTime) / 1000).toFixed(2);
 
-    console.log(`✅ Folder translation completed: ${new Date(endTime).toISOString()}`);
-    console.log(`⏳ Total elapsed time: ${elapsedTime} seconds`);
+    logger.info(`✅ Folder translation completed: ${new Date(endTime).toISOString()}`);
+    logger.info(`⏳ Total elapsed time: ${elapsedTime} seconds`);
 }

@@ -1,4 +1,5 @@
 import { pool, queryDB } from "./connect.js";
+import { logger } from "../utils/logger.js";
 
 export async function inputWordsWithoutTraining(wordsObject, tableName = "translation_terms") {
     if (!wordsObject.english || wordsObject.english.length === 0) return;
@@ -23,21 +24,21 @@ export async function inputWordsWithoutTraining(wordsObject, tableName = "transl
         await client.query("BEGIN");
         await queryDB(insertQuery, values);
         await client.query("COMMIT");
-        console.log("📝 Stored words:", wordsObject.english.map((word, i) => ({
+        logger.info("📝 Stored words:", wordsObject.english.map((word, i) => ({
             english: word,
             korean: wordsObject.korean[i],
             japanese: wordsObject.japanese[i]
         })));
     } catch (error) {
         await client.query("ROLLBACK");
-        console.error("🚨 Error inserting words into DB:", error);
+        logger.error("🚨 Error inserting words into DB:", error);
     }
 }
 
 export async function inputWordsWithTraining(words, tableName = "translation_terms") {
     if (!words.english || words.english.length === 0) return;
     if (!words.korean || !words.japanese || words.korean.length !== words.english.length || words.japanese.length !== words.english.length) {
-        console.error("🚨 Invalid translation data. English, Korean, and Japanese arrays must have the same length.");
+        logger.error("🚨 Invalid translation data. English, Korean, and Japanese arrays must have the same length.");
         return;
     }
 
@@ -61,9 +62,9 @@ export async function inputWordsWithTraining(words, tableName = "translation_ter
         await client.query("BEGIN");
         await queryDB(insertQuery, values);
         await client.query("COMMIT");
-        console.log(`✅ ${words.english.length} translated words added/updated in "${tableName}".`);
+        logger.info(`✅ ${words.english.length} translated words added/updated in "${tableName}".`);
     } catch (error) {
         await client.query("ROLLBACK");
-        console.error("🚨 Error inserting translated words into DB:", error);
+        logger.error("🚨 Error inserting translated words into DB:", error);
     }
 }

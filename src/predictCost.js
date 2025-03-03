@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import { fetchAvailableModels } from "./utils/openaiUtils.js";
+import { logger } from "./utils/logger.js";
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ export async function countTokens(text) {
         const enc = await loadTiktoken();
         return enc.encode(text).length;
     } catch (error) {
-        console.error("❌ Tokenization failed. Skipping file...", error);
+        logger.error("❌ Tokenization failed. Skipping file...", error);
         return 0;
     }
 }
@@ -42,7 +43,7 @@ async function processFile(filePath) {
     const stats = fs.statSync(filePath);
 
     if (stats.size > MAX_FILE_SIZE) {
-        console.warn(`⚠️ Skipping large file: ${filePath} (Size: ${stats.size} bytes)`);
+        logger.warn(`⚠️ Skipping large file: ${filePath} (Size: ${stats.size} bytes)`);
         return 0;
     }
 
@@ -63,15 +64,15 @@ function printCurrentResult(model) {
     const costEstimate = estimateCost(totalTokens, model);
     const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
 
-    console.log("\n\n⚠️ Process interrupted. Showing current results:");
-    console.log(`📊 Total Tokens (so far): ${totalTokens}`);
-    console.log(`💰 Estimated Cost for ${model} (so far): $${costEstimate.totalCost.toFixed(2)}`);
-    console.log(`⏳ Elapsed time: ${elapsedTime} seconds`);
+    logger.info("\n\n⚠️ Process interrupted. Showing current results:");
+    logger.info(`📊 Total Tokens (so far): ${totalTokens}`);
+    logger.info(`💰 Estimated Cost for ${model} (so far): $${costEstimate.totalCost.toFixed(2)}`);
+    logger.info(`⏳ Elapsed time: ${elapsedTime} seconds`);
 }
 
 
 async function analyzeFolder(folderPath, model = "gpt-4o-mini", allowedExtensions = [".sgml", ".md", ".markdown", ".adoc", ".asciidoc", ".mdx"]) {
-    console.log(`🚀 Analyzing folder: ${folderPath} | Model: ${model}`);
+    logger.info(`🚀 Analyzing folder: ${folderPath} | Model: ${model}`);
 
     async function processDirectory(directory) {
         if (!analyzing) throw new Error("Process interrupted.");
@@ -87,7 +88,7 @@ async function analyzeFolder(folderPath, model = "gpt-4o-mini", allowedExtension
             }
 
             if (stat.isDirectory()) {
-                console.log(`📂 Entering folder: ${filePath}`);
+                logger.info(`📂 Entering folder: ${filePath}`);
                 await processDirectory(filePath);
             } else {
                 const fileExt = path.extname(file).toLowerCase();
@@ -95,7 +96,7 @@ async function analyzeFolder(folderPath, model = "gpt-4o-mini", allowedExtension
                     try {
                         const tokenCount = await processFile(filePath);
                         totalTokens += tokenCount;
-                        console.log(`📄 File: ${filePath} | Tokens: ${tokenCount}`);
+                        logger.info(`📄 File: ${filePath} | Tokens: ${tokenCount}`);
                     } catch (error) {
                         if (error.message === "Process interrupted.") return;
                     }
@@ -116,19 +117,19 @@ async function predictCost() {
     const model = process.argv[3] || "gpt-4o-mini";
 
     if (!folderPath) {
-        console.error("❌ Please specify the folder to analyze. Usage: node predictCost.js <folder_path> [model]");
+        logger.error("❌ Please specify the folder to analyze. Usage: node predictCost.js <folder_path> [model]");
         process.exit(1);
     }
 
     const availableModels = await fetchAvailableModels();
     if (!availableModels.includes(model)) {
-        console.error(`❌ Invalid model: ${model}. Available models: ${availableModels.join(", ")}`);
+        logger.error(`❌ Invalid model: ${model}. Available models: ${availableModels.join(", ")}`);
         process.exit(1);
     }
 
     process.on("SIGINT", () => {
         analyzing = false;
-        console.log("\n🛑 Stopping analysis...");
+        logger.info("\n🛑 Stopping analysis...");
         printCurrentResult(model);
         setTimeout(() => process.exit(0), 500);
     });

@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
+import { logger } from "../utils/logger.js";
 
 dotenv.config();
 
@@ -15,11 +16,11 @@ const openai = new OpenAI({
  */
 export async function applyFineTuning(trainedWords) {
     if (!trainedWords || !trainedWords.english.length) {
-        console.log("⚠️ No trained words available for fine-tuning.");
+        logger.info("⚠️ No trained words available for fine-tuning.");
         return;
     }
 
-    console.log("🚀 Preparing dataset for fine-tuning...");
+    logger.info("🚀 Preparing dataset for fine-tuning...");
 
     // 1️⃣ Fine-tuning 데이터셋을 JSONL 형식으로 저장
     const fineTuneData = trainedWords.english.map((word, i) => ({
@@ -37,7 +38,7 @@ export async function applyFineTuning(trainedWords) {
             file: fs.createReadStream(fineTuneFilePath),
         });
 
-        console.log("✅ Fine-tune dataset uploaded successfully:", fileUploadResponse);
+        logger.info("✅ Fine-tune dataset uploaded successfully:", fileUploadResponse);
 
         // 3️⃣ Fine-tuning 시작
         const fineTuneResponse = await openai.fineTunes.create({
@@ -45,8 +46,8 @@ export async function applyFineTuning(trainedWords) {
             model: process.env.MODEL_ID,
         });
 
-        console.log("🚀 Fine-tuning started:", fineTuneResponse);
+        logger.info("🚀 Fine-tuning started:", fineTuneResponse);
     } catch (error) {
-        console.error("❌ Error during fine-tuning:", error);
+        logger.error("❌ Error during fine-tuning:", error);
     }
 }

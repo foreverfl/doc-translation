@@ -5,19 +5,20 @@ import dotenv from "dotenv";
 import fs from "fs/promises";
 import path from "path";
 import stopwords from "stopwords-iso" assert { type: "json" };
+import { logger } from "../utils/logger.js";
 
 dotenv.config();
 
 const openai = new ChatOpenAI({
     apiKey: process.env.OPENAI_API_KEY,
     model: "gpt-4o-mini",
-    temperature: 0.2,  
+    temperature: 0.2,
 });
 
 export async function translateWords(wordsObject) {
 
     if (!wordsObject || !wordsObject.english || wordsObject.english.length === 0) {
-        console.log("⚠️ No words to translate.");
+        logger.info("⚠️ No words to translate.");
         return { english: [], korean: [], japanese: [] };
     }
 
@@ -38,7 +39,7 @@ export async function translateWords(wordsObject) {
         // ✅ 3. Call OpenAI API
         const response = await openai.invoke(formattedPrompt);
 
-        // console.log("🔍 Raw OpenAI Response:\n", response.content);
+        // logger.info("🔍 Raw OpenAI Response:\n", response.content);
 
         let translatedText = response.content.trim();
 
@@ -53,7 +54,7 @@ export async function translateWords(wordsObject) {
                 throw new Error("Invalid JSON format");
             }
         } catch (parseError) {
-            console.error("❌ Failed to parse JSON response, falling back to manual parsing...");
+            logger.error("❌ Failed to parse JSON response, falling back to manual parsing...");
             translatedWords = {
                 english: wordsObject.english,
                 korean: wordsObject.english.map(() => null),
@@ -63,7 +64,7 @@ export async function translateWords(wordsObject) {
 
         return translatedWords;
     } catch (error) {
-        console.error("❌ Error translating words:", error);
+        logger.error("❌ Error translating words:", error);
         return { english: wordsObject.english, korean: wordsObject.english.map(() => null), japanese: wordsObject.english.map(() => null) };
     }
 }
@@ -88,7 +89,7 @@ export function extractFrequentNouns(content, minCount = 5) {
     const frequentNouns = Object.keys(wordCounts).filter(word => wordCounts[word] >= minCount);
 
     if (frequentNouns.length === 0) {
-        console.log("⚠️ No frequent nouns found.");
+        logger.info("⚠️ No frequent nouns found.");
         return [];
     }
 

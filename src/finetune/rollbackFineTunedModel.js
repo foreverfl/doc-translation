@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import fs from "fs";
+import { logger } from "../utils/logger.js";
 
 dotenv.config();
 
@@ -13,28 +14,28 @@ async function rollbackFineTunedModel() {
         const list = await openai.fineTuning.jobs.list();
 
         if (!list.data || list.data.length === 0) {
-            console.log("⚠️ No fine-tuned models found.");
+            logger.info("⚠️ No fine-tuned models found.");
             return;
         }
 
-        console.log("✅ Checking fine-tuned models...");
+        logger.info("✅ Checking fine-tuned models...");
         let previousSucceededModel = null;
 
         for (const fineTune of list.data) {
-            console.log(`🆔 ID: ${fineTune.id} | Status: ${fineTune.status} | Created: ${new Date(fineTune.created_at * 1000).toISOString()}`);
-            
+            logger.info(`🆔 ID: ${fineTune.id} | Status: ${fineTune.status} | Created: ${new Date(fineTune.created_at * 1000).toISOString()}`);
+
             if (fineTune.status === "succeeded") {
                 previousSucceededModel = fineTune.id;
-                break; 
+                break;
             }
         }
 
         if (!previousSucceededModel) {
-            console.log("❌ No successful fine-tuned models available for rollback.");
+            logger.info("❌ No successful fine-tuned models available for rollback.");
             return;
         }
 
-        console.log(`🔄 Rolling back to previous successful model: ${previousSucceededModel}`);
+        logger.info(`🔄 Rolling back to previous successful model: ${previousSucceededModel}`);
 
         // .env 파일을 업데이트 (기존 MODEL_ID 변경)
         const envPath = ".env";
@@ -44,10 +45,10 @@ async function rollbackFineTunedModel() {
         envContent = envContent.replace(/MODEL_ID=.*/g, `MODEL_ID=${previousSucceededModel}`);
         fs.writeFileSync(envPath, envContent);
 
-        console.log(`✅ Successfully rolled back to model: ${previousSucceededModel}`);
+        logger.info(`✅ Successfully rolled back to model: ${previousSucceededModel}`);
 
     } catch (error) {
-        console.error("❌ Error during rollback:", error);
+        logger.error("❌ Error during rollback:", error);
     }
 }
 

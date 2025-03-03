@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import fs from "fs";
 import OpenAI from "openai";
 import path from "path";
+import { logger } from "../utils/logger.js";
 
 dotenv.config();
 
@@ -11,23 +12,23 @@ const openai = new OpenAI({
 
 async function uploadTrainingFile(filePath) {
     try {
-        console.log(`📤 Uploading training file: ${filePath}...`);
+        logger.info(`📤 Uploading training file: ${filePath}...`);
         const response = await openai.files.create({
             file: fs.createReadStream(filePath),
             purpose: "fine-tune",
         });
 
-        console.log(`✅ Training file uploaded successfully! File ID: ${response.id}`);
+        logger.info(`✅ Training file uploaded successfully! File ID: ${response.id}`);
         return response.id;
     } catch (error) {
-        console.error("❌ Error uploading file:", error);
+        logger.error("❌ Error uploading file:", error);
         process.exit(1);
     }
 }
 
 async function createFineTunedModel(modelName = "gpt-4o-mini-2024-07-18", trainingFileId) {
     try {
-        console.log(`🚀 Creating a fine-tuned model using "${modelName}"...`);
+        logger.info(`🚀 Creating a fine-tuned model using "${modelName}"...`);
 
         const response = await openai.fineTuning.jobs.create({
             model: modelName,
@@ -45,12 +46,12 @@ async function createFineTunedModel(modelName = "gpt-4o-mini-2024-07-18", traini
         });
 
         const modelId = response.id;
-        console.log(`✅ Fine-tuning model created! Model ID: ${modelId}`);
-        console.log(`🔍 Monitor progress using: openai api fine_tunes.list`);
+        logger.info(`✅ Fine-tuning model created! Model ID: ${modelId}`);
+        logger.info(`🔍 Monitor progress using: openai api fine_tunes.list`);
 
         saveModelIdToEnv(modelId);
     } catch (error) {
-        console.error("❌ Error creating fine-tuned model:", error);
+        logger.error("❌ Error creating fine-tuned model:", error);
         process.exit(1);
     }
 }
@@ -76,7 +77,7 @@ function saveModelIdToEnv(modelId) {
 
     fs.writeFileSync(envPath, newEnvContent.trim() + "\n", "utf8");
 
-    console.log(`📌 Model ID saved in .env as ${newKey}=${modelId}`);
+    logger.info(`📌 Model ID saved in .env as ${newKey}=${modelId}`);
 }
 
 const modelName = process.argv[2] || "gpt-4o-mini-2024-07-18";
@@ -84,4 +85,4 @@ const trainingFilePath = "prompts/start-data.jsonl";
 
 uploadTrainingFile(trainingFilePath)
     .then((trainingFileId) => createFineTunedModel(modelName, trainingFileId))
-    .catch(console.error);
+    .catch(logger.error);
