@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import { fetchAvailableModels } from "./utils/openaiUtils.js";
-import { logger } from "./utils/logger.js";
+import logger from "./utils/logger.js";
 
 dotenv.config();
 

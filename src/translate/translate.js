@@ -8,7 +8,7 @@ import { checkExistingWords } from "../db/checkExistingWords.js";
 import { createTable } from "../db/createTable.js";
 import { inputWordsWithTraining } from "../db/inputWords.js";
 import { countTokens } from "../predictCost.js";
-import { logger } from "../utils/logger.js";
+import logger from "../utils/logger.js";
 import { applyTranslations, extractContentForTranslation, loadPromptByFileType, parseSGMLLines, readFile, rebuildSGML, removeCodeBlocks } from "../utils/utils.js";
 import { extractFrequentNouns, filterContent, translateWords } from "./translateTerms.js";
 

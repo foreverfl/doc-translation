@@ -1,6 +1,6 @@
 import { closeDB } from "./db/connect.js";
 import { translateFolder } from "./translate/translate.js";
-import { logger } from "./utils/logger.js";
+import logger from "./utils/logger.js";
 
 const folderPath = process.argv[2];
 

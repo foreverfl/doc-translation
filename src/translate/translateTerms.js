@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import fs from "fs/promises";
 import path from "path";
 import stopwords from "stopwords-iso" assert { type: "json" };
-import { logger } from "../utils/logger.js";
+import logger from "../utils/logger.js";
 
 dotenv.config();
 

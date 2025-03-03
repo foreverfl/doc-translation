@@ -1,5 +1,5 @@
 import { queryDB } from "./connect.js";
-import { logger } from "../utils/logger.js";
+import logger from "../utils/logger.js";
 
 export async function getUntrainedWordsForFineTuning(limit = 100) {
     const query = `SELECT english, korean, japanese FROM translation_terms WHERE is_trained = FALSE LIMIT $1`;

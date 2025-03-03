@@ -1,5 +1,5 @@
 import { queryDB } from "./connect.js";
-import { logger } from "../utils/logger.js";
+import logger from "../utils/logger.js";
 
 export async function createTable(tableName) {
     if (!tableName) {
