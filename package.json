@@ -4,6 +4,13 @@
   "description": "Tools for Translating Documentation",
   "main": "index.js",
   "type": "module",
+  "_moduleAliases": {
+    "@": "./src",
+    "@db": "./src/db",
+    "@finetune": "./src/finetune",
+    "@translate": "./src/translate",
+    "@utils": "./src/utils"
+  },
   "scripts": {
     "fetch-files": "node src/finetune/fetchFiles.js",
     "delete-file": "node src/finetune/deleteFile.js",
@@ -24,6 +31,7 @@
     "dotenv": "^16.4.7",
     "fs": "^0.0.1-security",
     "fs-extra": "^11.3.0",
+    "module-alias": "^2.2.3",
     "openai": "^4.85.1",
     "ora": "^8.2.0",
     "path": "^0.12.7",

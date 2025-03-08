@@ -1,8 +1,8 @@
+import { closeDB } from "@db/connect.js";
+import logger from "@utils/logger.js";
 import fs from "fs";
 import path from "path";
-import { closeDB } from "./db/connect.js";
 import { translateMarkdownFile, translateSGMLFile } from "./translate/translate.js";
-import logger from "./utils/logger.js";
 
 const inputPath = process.argv[2];
 

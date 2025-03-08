@@ -1,5 +1,5 @@
-import { pool, queryDB } from "./connect.js";
-import logger from "../utils/logger.js";
+import { pool, queryDB } from "@db/connect.js";
+import logger from "@utils/logger.js";
 
 export async function inputWordsWithoutTraining(wordsObject, tableName = "translation_terms") {
     if (!wordsObject.english || wordsObject.english.length === 0) return;

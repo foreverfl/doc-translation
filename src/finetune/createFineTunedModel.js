@@ -1,8 +1,8 @@
+import logger from "@utils/logger.js";
 import dotenv from "dotenv";
 import fs from "fs";
 import OpenAI from "openai";
 import path from "path";
-import logger from "../utils/logger.js";
 
 dotenv.config();
 

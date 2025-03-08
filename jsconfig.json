@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@db/*": ["src/db/*"],
+      "@finetune/*": ["src/finetune/*"],
+      "@translate/*": ["src/translate/*"],
+      "@utils/*": ["src/utils/*"]
+    }
+  }
+}

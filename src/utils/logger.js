@@ -1,6 +1,6 @@
-import winston from "winston";
-import path from "path";
 import fs from "fs-extra";
+import path from "path";
+import winston from "winston";
 
 const LOG_DIR = "logs";
 fs.ensureDirSync(LOG_DIR);

@@ -1,5 +1,5 @@
 import pkg from "pg";
-import logger from "../utils/logger.js";
+import logger from "@utils/logger.js";
 const { Pool } = pkg;
 
 export const pool = new Pool({

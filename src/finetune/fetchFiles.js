@@ -1,3 +1,3 @@
-import { fetchFiles } from "../utils/openaiUtils.js";
+import { fetchFiles } from "@utils/openaiUtils.js";
 
 fetchFiles();
