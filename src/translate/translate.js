@@ -1,12 +1,13 @@
+import { countTokens } from "@/predictCost.js";
 import { checkExistingWords } from "@db/checkExistingWords.js";
 import { createTable } from "@db/createTable.js";
 import { inputWordsWithTraining } from "@db/inputWords.js";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { ChatOpenAI } from "@langchain/openai";
-import { countTokens } from "@/predictCost.js";
 import { extractFrequentNouns, filterContent, translateWords } from "@translate/translateTerms.js";
 import logger from "@utils/logger.js";
 import { applyTranslations, extractContentForTranslation, loadPromptByFileType, parseSGMLLines, readFile, rebuildSGML, removeCodeBlocks } from "@utils/utils.js";
+import { chunkArray, chunkMarkdown, preprocessMarkdownHeaders } from "@utils/utils.js";
 import dotenv from "dotenv";
 import fs from "fs";
 import ora from "ora";
@@ -147,14 +148,6 @@ function logEntry(entry) {
     }
 
     logger.info(`${entry.seq.toString().padStart(4, '0')} (${entryType}): ${entry.indent}${entry.data}`);
-}
-
-function chunkArray(array, chunkSize) {
-    let results = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-        results.push(array.slice(i, i + chunkSize));
-    }
-    return results;
 }
 
 /**
@@ -308,7 +301,20 @@ export async function translateMarkdownFile(inputFilePath, mode = "test") {
         const totalCost = inputCost * 2;  // input + output
         logger.info(`🔹 Input cost: $${totalCost.toFixed(5)}`);
 
-        let translatedTexts = await translateMarkdownTextContent(markdownContent, inputFilePath);
+        // Split the texts into chunks to avoid exceeding the token limit
+        const CHUNK_SIZE = 500;
+        const textChunks = chunkMarkdown(markdownContent, CHUNK_SIZE);
+        logger.info(`🔹 Total chunks: ${textChunks.length}`);
+        let translatedTexts = [];
+
+        for (const chunk of textChunks) {
+            logger.info(`🔄 Translating chunk of ${chunk.length} entries...`);
+            const translatedChunk = await translateMarkdownTextContent(chunk, inputFilePath);
+            translatedTexts = translatedTexts.concat(translatedChunk);
+        }
+
+        const finalTranslatedText = translatedTexts.join("\n\n");
+        logger.info(`✅ Translation completed! Total: ${finalTranslatedText.length} entries`);
 
         let outputFilePath;
         if (mode === "test") {
@@ -330,7 +336,7 @@ export async function translateMarkdownFile(inputFilePath, mode = "test") {
             throw new Error("Invalid mode. Use 'test' or 'real'.");
         }
 
-        fs.writeFileSync(outputFilePath, translatedTexts, "utf-8");
+        fs.writeFileSync(outputFilePath, finalTranslatedText, "utf-8");
         logger.info(`✅ Translated Markdown saved: ${outputFilePath}`);
 
     } catch (error) {
@@ -341,6 +347,8 @@ export async function translateMarkdownFile(inputFilePath, mode = "test") {
 export async function translateMarkdownTextContent(textContent, filePath) {
 
     textContent = preprocessMarkdownHeaders(textContent);
+
+    logger.info("text content: ", textContent);
 
     logger.info(`📢 OpenAI translation request is started: `);
     const spinner = ora('Sending translation request to OpenAI...').start();
@@ -363,45 +371,10 @@ export async function translateMarkdownTextContent(textContent, filePath) {
     spinner.succeed(`✅ OpenAI Response Time: ${(endTime - startTime) / 1000} sec`);
 
     let translatedText = response.content.trim();
-    translatedText = removeCodeBlocks(translatedText);
 
-    // logger.info("🔹 Raw OpenAI Response:\n", translatedText);
+    logger.info("🔹 Raw OpenAI Response:\n", translatedText);
 
     return translatedText;
-}
-
-/**
- * Preprocesses markdown headers by adding unique IDs to them if they don't already have one.
- *
- * This function takes markdown content as input, splits it into lines, and processes each line to
- * identify markdown headers (lines starting with 1 to 6 hash symbols followed by a space and some text).
- * If a header does not already contain an ID (in the format `{#id}`), it generates a unique ID based on
- * the header text and appends it to the header.
- *
- * @param {string} markdownContent - The markdown content to preprocess.
- * @returns {string} - The preprocessed markdown content with IDs added to headers.
- */
-export function preprocessMarkdownHeaders(markdownContent) {
-    return markdownContent
-        .split("\n")
-        .map(line => {
-            const headingMatch = line.match(/^(#{1,6})\s+(.+)/);
-            if (headingMatch) {
-                const level = headingMatch[1];
-                const title = headingMatch[2].trim();
-                if (title.includes("{#")) return line;
-
-                const id = title
-                    .replace(/[^\w\s-]/g, "")
-                    .trim()
-                    .replace(/\s+/g, "-")
-                    .toLowerCase();
-
-                return `${level} ${title} {#${id}}`;
-            }
-            return line;
-        })
-        .join("\n");
 }
 
 /**

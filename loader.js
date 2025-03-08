@@ -1,5 +1,7 @@
-import { resolve as pathResolve, dirname } from "path";
-import { fileURLToPath, pathToFileURL } from "url";
+import { register } from "node:module";
+import { pathToFileURL } from "node:url";
+import { dirname, resolve as pathResolve } from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -21,3 +23,5 @@ export function resolve(specifier, context, nextResolve) {
     }
     return nextResolve(specifier, context);
 }
+
+register(import.meta.url, pathToFileURL("./loader.js"));

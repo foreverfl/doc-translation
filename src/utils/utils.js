@@ -196,3 +196,64 @@ export function rebuildSGML(parsedLines, outputPath) {
     fs.writeFileSync(outputPath, reconstructedSGML, "utf-8");
     logger.info(`✅ Translated SGML is saved : ${outputPath}`);
 }
+
+/**
+ * Splits an array into chunks of a specified size.
+ *
+ * @param {Array} array - The array to be split into chunks.
+ * @param {number} chunkSize - The size of each chunk.
+ * @returns {Array[]} An array containing the chunks.
+ */
+export function chunkArray(array, chunkSize) {
+    let results = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+        results.push(array.slice(i, i + chunkSize));
+    }
+    return results;
+}
+
+
+export function chunkMarkdown(markdown, chunkSize) {
+    const lines = markdown.split("\n"); 
+    let result = [];
+
+    for (let i = 0; i < lines.length; i += chunkSize) {
+        result.push(lines.slice(i, i + chunkSize).join("\n"));
+    }
+
+    return result;
+}
+
+/**
+ * Preprocesses markdown headers by adding unique IDs to them if they don't already have one.
+ *
+ * This function takes markdown content as input, splits it into lines, and processes each line to
+ * identify markdown headers (lines starting with 1 to 6 hash symbols followed by a space and some text).
+ * If a header does not already contain an ID (in the format `{#id}`), it generates a unique ID based on
+ * the header text and appends it to the header.
+ *
+ * @param {string} markdownContent - The markdown content to preprocess.
+ * @returns {string} - The preprocessed markdown content with IDs added to headers.
+ */
+export function preprocessMarkdownHeaders(markdownContent) {
+    return markdownContent
+        .split("\n")
+        .map(line => {
+            const headingMatch = line.match(/^(#{1,6})\s+(.+)/);
+            if (headingMatch) {
+                const level = headingMatch[1];
+                const title = headingMatch[2].trim();
+                if (title.includes("{#")) return line;
+
+                const id = title
+                    .replace(/[^\w\s-]/g, "")
+                    .trim()
+                    .replace(/\s+/g, "-")
+                    .toLowerCase();
+
+                return `${level} ${title} {#${id}}`;
+            }
+            return line;
+        })
+        .join("\n");
+}

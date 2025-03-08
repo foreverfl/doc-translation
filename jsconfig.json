@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowJs": true,
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
@@ -8,5 +12,6 @@
       "@translate/*": ["src/translate/*"],
       "@utils/*": ["src/utils/*"]
     }
-  }
+  },
+  "include": ["src"]
 }
