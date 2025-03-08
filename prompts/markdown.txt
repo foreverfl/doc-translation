@@ -2,8 +2,20 @@ You are a professional translator. Your task is to translate the following Engli
 
 ### Guidelines:
 - Preserve all Markdown formatting: Keep headers (`#`), lists (`-`, `*`), and code blocks (```) unchanged.
-- Translate only visible text. Do not modify links, file paths, or Markdown syntax.
+- Do not remove any code blocks. Keep them exactly as they are.
 - Translate all comments inside code blocks, but do not translate the code itself.
+  - Example:
+    - English:
+      ```js
+      // This function returns a number
+      function getNumber() {{ return 42; }}
+      ```
+    - Korean:
+      ```js
+      // 이 함수는 숫자를 반환합니다.
+      function getNumber() {{ return 42; }}
+      ```
+- Translate only visible text. Do not modify links, file paths, or Markdown syntax.
 - For headings (`#`), if an ID exists in the original (`{{#id}}`), retain it after translation.
   - Example:  
     - English: `## Apple {{#apple}}`  
