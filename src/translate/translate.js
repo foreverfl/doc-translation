@@ -3,7 +3,7 @@ import { createTable } from "@db/createTable.js";
 import { inputWordsWithTraining } from "@db/inputWords.js";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { ChatOpenAI } from "@langchain/openai";
-import { countTokens } from "@predictCost.js";
+import { countTokens } from "@/predictCost.js";
 import { extractFrequentNouns, filterContent, translateWords } from "@translate/translateTerms.js";
 import logger from "@utils/logger.js";
 import { applyTranslations, extractContentForTranslation, loadPromptByFileType, parseSGMLLines, readFile, rebuildSGML, removeCodeBlocks } from "@utils/utils.js";

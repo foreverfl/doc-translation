@@ -4,13 +4,6 @@
   "description": "Tools for Translating Documentation",
   "main": "index.js",
   "type": "module",
-  "_moduleAliases": {
-    "@": "./src",
-    "@db": "./src/db",
-    "@finetune": "./src/finetune",
-    "@translate": "./src/translate",
-    "@utils": "./src/utils"
-  },
   "scripts": {
     "fetch-files": "node src/finetune/fetchFiles.js",
     "delete-file": "node src/finetune/deleteFile.js",
@@ -18,7 +11,7 @@
     "rollback-model": "node src/finetune/rollbackFineTunedModel.js",
     "fetch-models": "node src/finetune/fetchFineTunedModels.js",
     "predict": "node src/predictCost.js",
-    "translate-file": "node src/translateFile.js",
+    "translate-file": "node --loader ./loader.js src/translateFile.js",
     "translate-folder": "node src/translateFolder.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
