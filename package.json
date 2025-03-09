@@ -12,8 +12,7 @@
     "fetch-models": "node src/finetune/fetchFineTunedModels.js",
     "predict": "node src/predictCost.js",
     "translate-file": "node --import ./loader.js src/translateFile.js",
-    "translate-folder": "node src/translateFolder.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "translate-folder": "node --import ./loader.js src/translateFolder.js"
   },
   "author": "mogumogu",
   "license": "ISC",
