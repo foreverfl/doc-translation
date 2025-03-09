@@ -59,17 +59,17 @@ export function saveFile(outputFilePath, content) {
     logger.info(`✅ Translation completed: ${outputFilePath}`);
 }
 
-/**
- * Removes code blocks from the given text.
- *
- * This function searches for code blocks enclosed in triple backticks (```) and removes them,
- * returning the text without the code blocks.
- *
- * @param {string} text - The input text containing code blocks.
- * @returns {string} - The text with code blocks removed.
- */
-export function removeCodeBlocks(text) {
-    return text.replace(/```(?:[\w]*)?(?:\n|\r\n|)([\s\S]*?)(?:\n|\r\n)?```/g, "$1").trim();
+
+export function removeFinalCodeBlock(text) {
+    const lines = text.split("\n"); 
+
+    const hasOpeningCodeBlock = lines[0].trim().startsWith("```");
+    const hasClosingCodeBlock = lines[lines.length - 1].trim().startsWith("```");
+
+    if (hasOpeningCodeBlock && hasClosingCodeBlock) {
+        return lines.slice(1, -1).join("\n").trim(); // 첫 줄과 마지막 줄 제거 후 반환
+    }    
+    return text; 
 }
 
 /**
@@ -214,7 +214,7 @@ export function chunkArray(array, chunkSize) {
 
 
 export function chunkMarkdown(markdown, chunkSize) {
-    const lines = markdown.split("\n"); 
+    const lines = markdown.split("\n");
     let result = [];
 
     for (let i = 0; i < lines.length; i += chunkSize) {

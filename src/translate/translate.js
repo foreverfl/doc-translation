@@ -6,7 +6,7 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { ChatOpenAI } from "@langchain/openai";
 import { extractFrequentNouns, filterContent, translateWords } from "@translate/translateTerms.js";
 import logger from "@utils/logger.js";
-import { applyTranslations, extractContentForTranslation, loadPromptByFileType, parseSGMLLines, readFile, rebuildSGML, removeCodeBlocks } from "@utils/utils.js";
+import { applyTranslations, extractContentForTranslation, loadPromptByFileType, parseSGMLLines, readFile, rebuildSGML, removeFinalCodeBlock } from "@utils/utils.js";
 import { chunkArray, chunkMarkdown, preprocessMarkdownHeaders } from "@utils/utils.js";
 import dotenv from "dotenv";
 import fs from "fs";
@@ -262,7 +262,7 @@ export async function translateSGMLTextContent(textContent, filePath) {
     spinner.succeed(`✅ OpenAI Response Time: ${(endTime - startTime) / 1000} sec`);
 
     let translatedText = response.content.trim();
-    translatedText = removeCodeBlocks(translatedText);
+    translatedText = removeFinalCodeBlock(translatedText);
 
     // logger.info("🔹 Raw OpenAI Response:\n", translatedText);
 
@@ -371,6 +371,7 @@ export async function translateMarkdownTextContent(textContent, filePath) {
     spinner.succeed(`✅ OpenAI Response Time: ${(endTime - startTime) / 1000} sec`);
 
     let translatedText = response.content.trim();
+    translatedText = removeFinalCodeBlock(translatedText);
 
     logger.info("🔹 Raw OpenAI Response:\n", translatedText);
 
