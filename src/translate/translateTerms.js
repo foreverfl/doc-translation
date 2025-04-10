@@ -5,7 +5,6 @@ import nlp from "compromise";
 import dotenv from "dotenv";
 import fs from "fs/promises";
 import path from "path";
-import stopwords from "stopwords-iso" assert { type: "json" };
 
 dotenv.config();
 
@@ -69,7 +68,10 @@ export async function translateWords(wordsObject) {
     }
 }
 
-export function extractFrequentNouns(content, minCount = 5) {
+export async function extractFrequentNouns(content, minCount = 5) {
+    // read stopwords-en.json file and parse it
+    const data = await readFile('./stopwords-en.json', 'utf-8');
+    const stopwords = JSON.parse(data);
     const STOPWORDS = new Set(stopwords.en); // 영어 불용어 목록
 
     const doc = nlp(content);

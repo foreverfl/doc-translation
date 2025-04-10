@@ -12,7 +12,7 @@ if (!folderPath) {
 async function runTranslation() {
     try {
         await translateFolder(folderPath, "real");
-        logger.info("✅ Translation process finished!");
+        logger.info("✅ Translation process finished!");    
     } catch (error) {
         logger.error("❌ Error:", error);
     } finally {
